@@ -14,7 +14,7 @@
             [caribou.account :as account]
             [caribou.util :as util]
             [caribou.app.config :as config]
-            [ring.adapter.jetty :as ring]
+            ;; [ring.adapter.jetty :as ring]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.java.jdbc :as sql]
@@ -316,4 +316,18 @@
 
 ;; (defn -main []
 ;;   (go))
+
+        ;; ring.middleware.params
+        ;; ring.middleware.keyword-params
+        ;; ring.middleware.multipart-params
+        ;; ring.middleware.session
+        ;; ring.middleware.flash
+        ;; ring.middleware.cookies)
+             ;; wrap-session
+             ;; wrap-flash
+             ;; wrap-cookies
+             ;; wrap-multipart-params
+             ;; wrap-params
+             ;; ;; wrap-nested-params
+             ;; wrap-keyword-params
 
