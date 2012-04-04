@@ -1,7 +1,7 @@
 (defproject caribou-api "0.1.0-SNAPSHOT"
   :description "The api ring handler for caribou-core"
   :dependencies [[org.clojure/clojure "1.3.0"]
-                 [antler/caribou "0.4.0-SNAPSHOT"]
+                 [antler/caribou-core "0.4.0-SNAPSHOT"]
                  [compojure "1.0.1"]
                  [ring/ring-core "1.0.2"]
                  [hiccup "0.3.6"]
