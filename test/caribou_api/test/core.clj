@@ -1,11 +1,11 @@
 (ns caribou-api.test.core
-  (:use [caribou-api.core]
+  (:use [caribou.api.core]
         [clojure.test]
         [caribou.debug])
   (:require [clojure.java.jdbc :as sql]
             [caribou.db :as db]
             [caribou.model :as model]
-            [caribou.app.config :as config]
+            [caribou.config :as config]
             [clojure.data.json :as json]))
 
 (deftest content-list-test
