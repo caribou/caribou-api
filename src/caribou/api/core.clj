@@ -1,4 +1,4 @@
-(ns caribou-api.core
+(ns caribou.api.core
   (:use compojure.core
         [clojure.string :only (join split)]
         [cheshire.core :only (generate-string encode)]
@@ -11,10 +11,9 @@
   (:use caribou.debug)
   (:require [caribou.db :as db]
             [caribou.model :as model]
-            [caribou.account :as account]
             [caribou.util :as util]
-            [caribou.app.config :as config]
-            ;; [ring.adapter.jetty :as ring]
+            [caribou.config :as config]
+            [caribou.api.account :as account]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.java.jdbc :as sql]
@@ -248,7 +247,7 @@
 ;; routes --------------------------------------------------
 
 (defroutes main-routes
-  (route/files "/" {:root "config"})
+  (route/files "/" {:root "public"})
   (GET  "/" {params :params} (home params))
   (POST "/upload" {params :params} (upload params))
 
@@ -267,7 +266,6 @@
   (PUT  "/:slug/:id" {params :params} (update-content params))
   (DELETE  "/:slug/:id" {params :params} (delete-content params))
   (GET  "/:slug/:id/:field" {params :params} (field-detail params))
-  (route/resources "/")
   (route/not-found "NONONONONONON"))
 
 (defn authorize
