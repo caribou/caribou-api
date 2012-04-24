@@ -303,7 +303,7 @@
 (defn full-head-avoidance
   [jetty]
   (doseq [connector (.getConnectors jetty)]
-    (.setHeaderBufferSize connector header-buffer-size)))
+    (.setRequestHeaderSize connector header-buffer-size)))
 
 (defn start [port ssl-port]
   (init)
@@ -311,10 +311,7 @@
    (var app)
    {:port port :join? false
     :host "127.0.0.1"
-    :configurator
-    (fn [jetty]
-      (doseq [connector (.getConnectors jetty)]
-        (.setRequestHeaderSize connector header-buffer-size)))
+    :configurator full-head-avoidance
     :ssl? true :ssl-port ssl-port
     :keystore "caribou.keystore"
     :key-password "caribou"}))
@@ -327,17 +324,4 @@
 (defn -main []
   (go))
 
-        ;; ring.middleware.params
-        ;; ring.middleware.keyword-params
-        ;; ring.middleware.multipart-params
-        ;; ring.middleware.session
-        ;; ring.middleware.flash
-        ;; ring.middleware.cookies)
-             ;; wrap-session
-             ;; wrap-flash
-             ;; wrap-cookies
-             ;; wrap-multipart-params
-             ;; wrap-params
-             ;; ;; wrap-nested-params
-             ;; wrap-keyword-params
 
