@@ -14,6 +14,7 @@
             [caribou.util :as util]
             [caribou.config :as config]
             [caribou.api.account :as account]
+            [ring.adapter.jetty :as ring]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.java.jdbc :as sql]
@@ -283,37 +284,48 @@
    #".*.css|.*.png" :any-channel
    #".*" :nossl])
 
-(def app (-> main-routes
-             (with-security authorize)
-             handler/site
-             wrap-stateful-session
-             (db/wrap-db @config/db)
-             (with-secure-channel security-config (@config/app :api-port) (@config/app :api-ssl-port))))
+(declare app) 
 
-(defn init [] )
+(defn init []
+  (def app
+    (-> main-routes
+        (with-security authorize)
+        handler/site
+        wrap-stateful-session
+        (db/wrap-db @config/db)
+        (with-secure-channel
+          security-config
+          (@config/app :api-port)
+          (@config/app :api-ssl-port)))))
 
-;; (def header-buffer-size 8388608)
+(def header-buffer-size 8388608)
 
-;; (defn start [port ssl-port]
-;;   (ring/run-jetty
-;;    (var app)
-;;    {:port port :join? false
-;;     :host "127.0.0.1"
-;;     :configurator
-;;     (fn [jetty]
-;;       (doseq [connector (.getConnectors jetty)]
-;;         (.setHeaderBufferSize connector header-buffer-size)))
-;;     :ssl? true :ssl-port ssl-port
-;;     :keystore "caribou.keystore"
-;;     :key-password "caribou"}))
+(defn full-head-avoidance
+  [jetty]
+  (doseq [connector (.getConnectors jetty)]
+    (.setHeaderBufferSize connector header-buffer-size)))
 
-;; (defn go []
-;;   (let [port (Integer/parseInt (or (@config/app :api-port) "22222"))
-;;         ssl-port (Integer/parseInt (or (@config/app :api-ssl-port) "22223"))]
-;;     (start port ssl-port)))
+(defn start [port ssl-port]
+  (init)
+  (ring/run-jetty
+   (var app)
+   {:port port :join? false
+    :host "127.0.0.1"
+    :configurator
+    (fn [jetty]
+      (doseq [connector (.getConnectors jetty)]
+        (.setRequestHeaderSize connector header-buffer-size)))
+    :ssl? true :ssl-port ssl-port
+    :keystore "caribou.keystore"
+    :key-password "caribou"}))
 
-;; (defn -main []
-;;   (go))
+(defn go []
+  (let [port (Integer/parseInt (or (@config/app :api-port) "33443"))
+        ssl-port (Integer/parseInt (or (@config/app :api-ssl-port) "33883"))]
+    (start port ssl-port)))
+
+(defn -main []
+  (go))
 
         ;; ring.middleware.params
         ;; ring.middleware.keyword-params
