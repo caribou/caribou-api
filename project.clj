@@ -12,7 +12,8 @@
                  [ring/ring-jetty-adapter "1.1.0"]
                  [org.clojure/data.xml "0.0.3"]
                  [clojure-csv/clojure-csv "1.3.2"]
-                 [org.clojars.cjschroed/sandbar "0.4.0"]]
+                 [org.clojars.cjschroed/sandbar "0.4.0"]
+                 [clj-http "0.3.6"]]
                  ;; [antler/sandbar "0.4.0-SNAPSHOT"]]
   :jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n"]
   :main caribou.api.core

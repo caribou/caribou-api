@@ -20,7 +20,8 @@
             [clojure.java.jdbc :as sql]
             [clojure.java.io :as io]
             [clojure-csv.core :as csv]
-            [clojure.data.xml :as xml]))
+            [clojure.data.xml :as xml]
+            [caribou.api.halo :as api-halo]))
 
 (def error
   {:meta {:status "500"
@@ -284,9 +285,22 @@
    #".*.css|.*.png" :any-channel
    #".*" :nossl])
 
+
+;; ===============================
+;; API app init
+;; ===============================
+
 (declare app) 
 
 (defn init []
+  (config/init)
+  (model/init)
+
+  (if (@config/app :halo-enabled)
+    (do
+      (model/add-hook :page [:after_destroy :after_save] :halo-reload-routes api-halo/reload-routes)
+      (model/add-hook :model [:after_destroy :after_save] :halo-reload-models api-halo/reload-models)))
+
   (def app
     (-> main-routes
         (with-security authorize)
