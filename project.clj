@@ -17,5 +17,6 @@
   :ring {:handler caribou.api.core/app
          :servlet-name "caribou-api"
          :init caribou.api.core/init
+         :configurator ~caribou.api.core/full-head-avoidance
          :port 33443})
 

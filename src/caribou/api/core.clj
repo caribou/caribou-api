@@ -297,12 +297,12 @@
           (@config/app :api-port)
           (@config/app :api-ssl-port)))))
 
-;; (def header-buffer-size 8388608)
+(def header-buffer-size 524288)
 
-;; (defn full-head-avoidance
-;;   [jetty]
-;;   (doseq [connector (.getConnectors jetty)]
-;;     (.setRequestHeaderSize connector header-buffer-size)))
+(defn full-head-avoidance
+  [jetty]
+  (doseq [connector (.getConnectors jetty)]
+    (.setRequestHeaderSize connector header-buffer-size)))
 
 ;; (defn start [port ssl-port]
 ;;   (init)
