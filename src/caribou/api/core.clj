@@ -249,28 +249,6 @@
 
 ;; routes --------------------------------------------------
 
-(defroutes main-routes
-  (route/files "/" {:root (@config/app :api-public)})
-  (GET  "/" {params :params} (home params))
-  (POST "/upload" {params :params} (upload params))
-
-  (GET  "/permission-denied" {params :params} (permission-denied params))
-  (POST "/login" {params :params} (login params))
-  (GET  "/:slug.:format" {params :params} (list-all params))
-  (POST "/:slug.:format" {params :params} (create-content params))
-  (GET  "/:slug/:id.:format" {params :params} (item-detail params))
-  (PUT  "/:slug/:id.:format" {params :params} (update-content params))
-  (DELETE  "/:slug/:id.:format" {params :params} (delete-content params))
-  (GET  "/:slug/:id/:field.:format" {params :params} (field-detail params))
-
-  (GET  "/:slug" {params :params} (list-all params))
-  (POST "/:slug" {params :params} (create-content params))
-  (GET  "/:slug/:id" {params :params} (item-detail params))
-  (PUT  "/:slug/:id" {params :params} (update-content params))
-  (DELETE  "/:slug/:id" {params :params} (delete-content params))
-  (GET  "/:slug/:id/:field" {params :params} (field-detail params))
-  (route/not-found "NONONONONONON"))
-
 (defn authorize
   [request]
   (let [uri (:uri request)
@@ -296,6 +274,28 @@
 (defn init []
   (config/init)
   (model/init)
+
+  (defroutes main-routes
+    (route/files "/" {:root (debug (@config/app :api-public))})
+    (GET  "/" {params :params} (home params))
+    (POST "/upload" {params :params} (upload params))
+
+    (GET  "/permission-denied" {params :params} (permission-denied params))
+    (POST "/login" {params :params} (login params))
+    (GET  "/:slug.:format" {params :params} (list-all params))
+    (POST "/:slug.:format" {params :params} (create-content params))
+    (GET  "/:slug/:id.:format" {params :params} (item-detail params))
+    (PUT  "/:slug/:id.:format" {params :params} (update-content params))
+    (DELETE  "/:slug/:id.:format" {params :params} (delete-content params))
+    (GET  "/:slug/:id/:field.:format" {params :params} (field-detail params))
+
+    (GET  "/:slug" {params :params} (list-all params))
+    (POST "/:slug" {params :params} (create-content params))
+    (GET  "/:slug/:id" {params :params} (item-detail params))
+    (PUT  "/:slug/:id" {params :params} (update-content params))
+    (DELETE  "/:slug/:id" {params :params} (delete-content params))
+    (GET  "/:slug/:id/:field" {params :params} (field-detail params))
+    (route/not-found "NONONONONONON"))
 
   (if (@config/app :halo-enabled)
     (do
