@@ -175,8 +175,10 @@
 </html>
 "
                 )]
-    (.mkdirs (io/file (str "public/" dir)))
-    (io/copy (-> params :upload :tempfile) (io/file (str "public/" path)))
+    (.mkdirs (io/file (util/pathify [(@config/app :api-public) dir])))
+    (io/copy (-> params :upload :tempfile) (io/file (util/pathify [(@config/app :api-public) path])))
+    ;; (.mkdirs (io/file (str "public/" dir)))
+    ;; (io/copy (-> params :upload :tempfile) (io/file (str "public/" path)))
     response))
 
 (action list-all [params slug]
@@ -248,7 +250,7 @@
 ;; routes --------------------------------------------------
 
 (defroutes main-routes
-  (route/files "/" {:root "public"})
+  (route/files "/" {:root (@config/app :api-public)})
   (GET  "/" {params :params} (home params))
   (POST "/upload" {params :params} (upload params))
 
