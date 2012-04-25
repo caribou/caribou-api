@@ -14,7 +14,6 @@
             [caribou.util :as util]
             [caribou.config :as config]
             [caribou.api.account :as account]
-            [ring.adapter.jetty :as ring]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.java.jdbc :as sql]
@@ -298,30 +297,30 @@
           (@config/app :api-port)
           (@config/app :api-ssl-port)))))
 
-(def header-buffer-size 8388608)
+;; (def header-buffer-size 8388608)
 
-(defn full-head-avoidance
-  [jetty]
-  (doseq [connector (.getConnectors jetty)]
-    (.setRequestHeaderSize connector header-buffer-size)))
+;; (defn full-head-avoidance
+;;   [jetty]
+;;   (doseq [connector (.getConnectors jetty)]
+;;     (.setRequestHeaderSize connector header-buffer-size)))
 
-(defn start [port ssl-port]
-  (init)
-  (ring/run-jetty
-   (var app)
-   {:port port :join? false
-    :host "127.0.0.1"
-    :configurator full-head-avoidance
-    :ssl? true :ssl-port ssl-port
-    :keystore "caribou.keystore"
-    :key-password "caribou"}))
+;; (defn start [port ssl-port]
+;;   (init)
+;;   (ring/run-jetty
+;;    (var app)
+;;    {:port port :join? false
+;;     :host "127.0.0.1"
+;;     :configurator full-head-avoidance
+;;     :ssl? true :ssl-port ssl-port
+;;     :keystore "caribou.keystore"
+;;     :key-password "caribou"}))
 
-(defn go []
-  (let [port (Integer/parseInt (or (@config/app :api-port) "33443"))
-        ssl-port (Integer/parseInt (or (@config/app :api-ssl-port) "33883"))]
-    (start port ssl-port)))
+;; (defn go []
+;;   (let [port (Integer/parseInt (or (@config/app :api-port) "33443"))
+;;         ssl-port (Integer/parseInt (or (@config/app :api-ssl-port) "33883"))]
+;;     (start port ssl-port)))
 
-(defn -main []
-  (go))
+;; (defn -main []
+;;   (go))
 
 
