@@ -63,7 +63,7 @@
     (cond
      (or (seq? morph) (vector? morph) (list? morph)) (join "|" (map #(str (last (first %))) morph))
      :else (str morph))))
-                                                   
+
 (defn to-csv [headings bulk]
   (csv/write-csv [(filter identity (map #(to-csv-column bulk %) headings))]))
 
@@ -71,7 +71,7 @@
 
 (defn prep-xml-item [bulk]
   (map (fn [key] [key (prep-xml (bulk key))]) (keys bulk)))
-  
+
 (defn prep-xml [bulk]
   (cond
    (map? bulk) (prep-xml-item bulk)
@@ -290,7 +290,7 @@
 ;; API app init
 ;; ===============================
 
-(declare app) 
+(declare app)
 
 (defn init []
   (config/init)
