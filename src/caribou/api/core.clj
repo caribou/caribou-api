@@ -175,8 +175,8 @@
 </html>
 "
                 )]
-    (.mkdirs (io/file (util/pathify [(@config/app :api-public) dir])))
-    (io/copy (-> params :upload :tempfile) (io/file (util/pathify [(@config/app :api-public) path])))
+    (.mkdirs (io/file (util/pathify [(@config/app :asset-dir) dir])))
+    (io/copy (-> params :upload :tempfile) (io/file (util/pathify [(@config/app :asset-dir) path])))
     ;; (.mkdirs (io/file (str "public/" dir)))
     ;; (io/copy (-> params :upload :tempfile) (io/file (str "public/" path)))
     response))
@@ -276,7 +276,8 @@
   (model/init)
 
   (defroutes main-routes
-    (route/files "/" {:root (debug (@config/app :api-public))})
+    (route/files "/" {:root (@config/app :api-public)})
+    (route/files "/" {:root (@config/app :asset-dir)})
     (GET  "/" {params :params} (home params))
     (POST "/upload" {params :params} (upload params))
 
@@ -312,31 +313,4 @@
           security-config
           (@config/app :api-port)
           (@config/app :api-ssl-port)))))
-
-(def header-buffer-size 524288)
-
-(defn full-head-avoidance
-  [jetty]
-  (doseq [connector (.getConnectors jetty)]
-    (.setRequestHeaderSize connector header-buffer-size)))
-
-;; (defn start [port ssl-port]
-;;   (init)
-;;   (ring/run-jetty
-;;    (var app)
-;;    {:port port :join? false
-;;     :host "127.0.0.1"
-;;     :configurator full-head-avoidance
-;;     :ssl? true :ssl-port ssl-port
-;;     :keystore "caribou.keystore"
-;;     :key-password "caribou"}))
-
-;; (defn go []
-;;   (let [port (Integer/parseInt (or (@config/app :api-port) "33443"))
-;;         ssl-port (Integer/parseInt (or (@config/app :api-ssl-port) "33883"))]
-;;     (start port ssl-port)))
-
-;; (defn -main []
-;;   (go))
-
 
