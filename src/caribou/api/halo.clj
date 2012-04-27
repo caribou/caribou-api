@@ -1,7 +1,6 @@
 (ns caribou.api.halo
-  (:require
-          [caribou.config :as config]
-          [clj-http.client :as http-client]))
+  (:require [caribou.config :as config]
+            [clj-http.client :as http-client]))
 
 ;; ===============================
 ;; Halo Connectors

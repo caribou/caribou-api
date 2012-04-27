@@ -1,7 +1,7 @@
 (defproject antler/caribou-api "0.3.7"
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.3.0"]
-                 [antler/caribou-core "0.5.1"]
+                 [antler/caribou-core "0.5.2"]
                  [compojure "1.0.2"]
                  [ring/ring-core "1.1.0"
                   :exclusions [org.clojure/clojure
