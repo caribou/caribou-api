@@ -12,6 +12,7 @@
                  [clojure-csv/clojure-csv "1.3.2"]
                  [org.clojars.cjschroed/sandbar "0.4.0"]
                  [clj-http "0.3.6"]]
+  :main caribou.api.core
   :jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n"]
   :ring {:handler caribou.api.core/app
          :servlet-name "caribou-api"
