@@ -12,7 +12,7 @@
    "address": {"name":"Address", "slug":"address", "options": []},
    "collection": {"name":"Collection", "slug":"collection", "options": ["link"]},
    "part": {"name":"Part", "slug":"part", "options": ["link"]},
-   "tie": {"name":"Tie", "slug":"tie", "options": ["link"]}
+   "tie": {"name":"Tie", "slug":"tie", "options": ["link"]},
    "link": {"name":"Link", "slug":"link", "options": ["link"]}
  }
 }
