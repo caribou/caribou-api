@@ -3,23 +3,23 @@
         [clojure.string :only (join split)]
         [cheshire.core :only (generate-string encode)]
         [cheshire.custom :only (add-encoder)]
-        [ring.util.response :only (redirect)]
-        [sandbar.auth :only
-         (ensure-any-role-if any-role-granted? current-username logout! with-security with-secure-channel)]
-        [sandbar.stateful-session :only
-         (wrap-stateful-session session-put! session-get session-delete-key!)])
+        [ring.util.response :only (redirect)])
+        ;; [sandbar.auth :only
+        ;;  (ensure-any-role-if any-role-granted? current-username logout! with-security with-secure-channel)]
+        ;; [sandbar.stateful-session :only
+        ;;  (wrap-stateful-session session-put! session-get session-delete-key!)])
   (:use caribou.debug)
   (:require [caribou.db :as db]
             [caribou.model :as model]
             [caribou.util :as util]
             [caribou.config :as config]
-            [caribou.api.account :as account]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.java.jdbc :as sql]
             [clojure.java.io :as io]
             [clojure-csv.core :as csv]
             [clojure.data.xml :as xml]
+            ;; [caribou.api.account :as account]
             [caribou.api.halo :as api-halo]))
 
 (def error
@@ -237,32 +237,32 @@
 (defn permission-denied [params]
   params)
 
-(defn login [params]
-  (let [account (first (model/rally :account {:where (str "email = '" (db/zap (params :email)) "'")}))
-        crypted (account/crypt (params :password))]
-    (if (and account (= crypted (account :crypted_password)))
-      (do
-        (session-put! :current-account account)
-        ;; (str "bobobobobobob" (account :email)))
-        (redirect "/"))
-      (merge error {:error "login failed"}))))
+;; (defn login [params]
+;;   (let [account (first (model/rally :account {:where (str "email = '" (db/zap (params :email)) "'")}))
+;;         crypted (account/crypt (params :password))]
+;;     (if (and account (= crypted (account :crypted_password)))
+;;       (do
+;;         (session-put! :current-account account)
+;;         ;; (str "bobobobobobob" (account :email)))
+;;         (redirect "/"))
+;;       (merge error {:error "login failed"}))))
 
-;; routes --------------------------------------------------
+;; ;; routes --------------------------------------------------
 
-(defn authorize
-  [request]
-  (let [uri (:uri request)
-        user (session-get :current-account)]
-    (if user
-      {:name (user :name) :roles #{:admin}}
-      (do
-        (session-put! :redirect-uri uri)
-        (redirect "/permission-denied")))))
+;; (defn authorize
+;;   [request]
+;;   (let [uri (:uri request)
+;;         user (session-get :current-account)]
+;;     (if user
+;;       {:name (user :name) :roles #{:admin}}
+;;       (do
+;;         (session-put! :redirect-uri uri)
+;;         (redirect "/permission-denied")))))
 
-(def security-config
-  [#"/login.*" :ssl
-   #".*.css|.*.png" :any-channel
-   #".*" :nossl])
+;; (def security-config
+;;   [#"/login.*" :ssl
+;;    #".*.css|.*.png" :any-channel
+;;    #".*" :nossl])
 
 
 ;; ===============================
@@ -282,7 +282,7 @@
     (POST "/upload" {params :params} (upload params))
 
     (GET  "/permission-denied" {params :params} (permission-denied params))
-    (POST "/login" {params :params} (login params))
+    ;; (POST "/login" {params :params} (login params))
     (GET  "/:slug.:format" {params :params} (list-all params))
     (POST "/:slug.:format" {params :params} (create-content params))
     (GET  "/:slug/:id.:format" {params :params} (item-detail params))
@@ -305,12 +305,12 @@
 
   (def app
     (-> main-routes
-        (with-security authorize)
+        ;; (with-security authorize)
         handler/site
-        wrap-stateful-session
-        (db/wrap-db @config/db)
-        (with-secure-channel
-          security-config
-          (@config/app :api-port)
-          (@config/app :api-ssl-port)))))
+        ;; wrap-stateful-session
+        (db/wrap-db @config/db))))
+        ;; (with-secure-channel
+        ;;   security-config
+        ;;   (@config/app :api-port)
+        ;;   (@config/app :api-ssl-port)))))
 
