@@ -6,7 +6,6 @@
                  [ring/ring-core "1.1.0"
                   :exclusions [org.clojure/clojure
                                clj-stacktrace]]
-                 [hiccup "0.3.6"]
                  [org.clojars.doo/cheshire "2.2.3"]
                  [org.clojure/data.xml "0.0.3"]
                  [clojure-csv/clojure-csv "1.3.2"]
