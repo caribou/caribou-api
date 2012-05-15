@@ -276,7 +276,8 @@
   (model/init)
 
   (defroutes main-routes
-    (route/files "/" {:root (@config/app :api-public)})
+    ;; (route/files "/" {:root (@config/app :api-public)})
+    (route/resources "/")
     (route/files "/" {:root (@config/app :asset-dir)})
     (GET  "/" {params :params} (home params))
     (POST "/upload" {params :params} (upload params))
