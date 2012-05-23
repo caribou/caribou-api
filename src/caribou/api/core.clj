@@ -282,7 +282,7 @@
     (GET  "/" {params :params} (home params))
     (POST "/upload" {params :params} (upload params))
 
-    (GET  "/permission-denied" {params :params} (permission-denied params))
+    ;; (GET  "/permission-denied" {params :params} (permission-denied params))
     ;; (POST "/login" {params :params} (login params))
     (GET  "/:slug.:format" {params :params} (list-all params))
     (POST "/:slug.:format" {params :params} (create-content params))
@@ -297,6 +297,13 @@
     (PUT  "/:slug/:id" {params :params} (update-content params))
     (DELETE  "/:slug/:id" {params :params} (delete-content params))
     (GET  "/:slug/:id/:field" {params :params} (field-detail params))
+
+    (OPTIONS  "/" {params :params} (home params))
+    (OPTIONS  "/upload" {params :params} (upload params))
+    (OPTIONS  "/:slug" {params :params} (list-all params))
+    (OPTIONS  "/:slug/:id" {params :params} (item-detail params))
+    (OPTIONS  "/:slug/:id/:field" {params :params} (field-detail params))
+
     (route/not-found "NONONONONONON"))
 
   (if (@config/app :halo-enabled)
