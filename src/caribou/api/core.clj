@@ -29,28 +29,28 @@
    :slug nil})
 
 (defn content-list [slug params]
-  (model/rally slug params))
+  (model/find-all slug params))
 
 (defn content-item [slug id]
-  (db/choose slug id))
+  (model/find-one slug {:where (db/clause "id:%1" [id])}))
 
 (defn content-field [slug id field]
   ((content-item slug id) field))
 
 (defn render [slug content opts]
-  (let [model (model/models (keyword slug))]
+  (let [model ((keyword slug) @model/models)]
     (model/model-render model content opts)))
 
 (defn render-field [slug content field opts]
-  (model/render (((model/models (keyword slug)) :fields) (keyword field)) content opts))
+  (model/render (-> @model/models (keyword slug) :fields (keyword field)) content opts))
 
-(defn process-include [include]
-  (if (and include (not (empty? include)))
-    (let [clauses (split include #",")
-          paths (map #(split % #"\.") clauses)
-          maps (reduce #(assoc %1 (keyword (first %2)) (process-include (join "." (rest %2)))) {} paths)]
-      maps)
-    {}))
+;; (defn process-include [include]
+;;   (if (and include (not (empty? include)))
+;;     (let [clauses (split include #",")
+;;           paths (map #(split % #"\.") clauses)
+;;           maps (reduce #(assoc %1 (keyword (first %2)) (process-include (join "." (rest %2)))) {} paths)]
+;;       maps)
+;;     {}))
 
 ;; formats -----------------------------------------------
 
@@ -93,7 +93,7 @@
    :csv  (fn [result params]
            (let [bulk (result :response)
                  what (-> result :meta :type)
-                 headings (if what (map name (keys ((model/models (keyword what)) :fields))))
+                 headings (if what (map name (keys (-> @model/models (keyword what) :fields))))
                  header (if what (csv/write-csv [headings]) "")]
              (cond
               (map? bulk) (str header (to-csv headings bulk))
@@ -152,9 +152,11 @@
 (defn upload [params]
   (log :action (str "upload => " params))
   (let [upload (params :upload)
-        asset (model/create :asset {:filename (upload :filename)
-                                    :content_type (upload :content-type)
-                                    :size (upload :size)})
+        asset (model/create
+               :asset
+               {:filename (upload :filename)
+                :content_type (upload :content-type)
+                :size (upload :size)})
         dir (model/asset-dir asset)
         path (model/asset-path asset)
         response (str "
@@ -182,16 +184,20 @@
     response))
 
 (action list-all [params slug]
-  (if (model/models (keyword slug))
-    (let [include (process-include (params :include))
-          order (or (params :order) "asc")
-          order-by (or (params :order_by) "position")
+  (if ((keyword slug) @model/models)
+    (let [include (params :include)
+          order (or (params :order) "position asc")
           page_size (or (params :page_size) "30")
           page (Integer/parseInt (or (params :page) "1"))
           limit (Integer/parseInt (or (params :limit) page_size))
           offset (or (params :offset) (* limit (dec page)))
-          included (merge params {:include include :limit limit :offset offset :order order :order_by order-by})
-          response (map #(render slug % included) (model/rally slug included))
+          where (params :where)
+          included
+          (merge
+           params
+           {:include include :limit limit :offset offset :order order :where where})
+          found (model/find-all slug included)
+          response (map #(render slug % included) found)
           showing (count response)
           total (db/tally slug)
           extra (if (> (rem total limit) 0) 1 0)
@@ -202,8 +208,9 @@
                                :total_pages total_pages
                                :page page
                                :page_size limit
-                               :order order
-                               :order_by order-by}))
+                               :include include
+                               :where where
+                               :order order}))
     (merge error {:meta {:msg "no model by that name"}})))
 
 (action model-spec [params slug]
@@ -211,12 +218,11 @@
     (wrap-response response {:type slug})))
 
 (action item-detail [params slug id]
-  (let [include (process-include (params :include))
-        response (render slug (content-item slug id) (assoc params :include include))]
+  (let [response (render slug (content-item slug id) params)]
     (wrap-response response {:type slug})))
 
 (action field-detail [params slug id field]
-  (let [include {(keyword field) (process-include (params :include))}
+  (let [include (or {(keyword field) (params :include)} {})
         response (render-field slug (content-item slug id) field (assoc params :include include))]
     (wrap-response response {})))
 
@@ -226,7 +232,7 @@
 
 (action update-content [params slug id]
   (let [content (model/update slug id (ensure-lists-in (params (keyword slug))))
-        response (render slug (db/choose slug id) params)]
+        response (render slug content params)]
     (wrap-response response {:type slug})))
 
 (action delete-content [params slug id]
