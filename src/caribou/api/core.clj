@@ -38,7 +38,8 @@
   ((content-item slug id) field))
 
 (defn render [slug content opts]
-  (let [model ((keyword slug) @model/models)]
+  (let [model ((keyword slug) @model/models)
+        opts (update-in opts [:include] model/process-include)]
     (model/model-render model content opts)))
 
 (defn render-field [slug content field opts]
