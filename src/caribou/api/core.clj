@@ -28,14 +28,19 @@
    :response {}
    :slug nil})
 
+(defn full-head-avoidance
+  [jetty]
+  (doseq [connector (.getConnectors jetty)]
+    (.setRequestHeaderSize connector 8388608)))
+
 (defn content-list [slug params]
   (model/find-all slug params))
 
-(defn content-item [slug id]
-  (model/find-one slug {:where (db/clause "id:%1" [id])}))
+(defn content-item [slug id params]
+  (model/find-one slug (merge params {:where (db/clause "id:%1" [id])})))
 
 (defn content-field [slug id field]
-  ((content-item slug id) field))
+  ((content-item slug id {}) field))
 
 (defn render [slug content opts]
   (let [model ((keyword slug) @model/models)
@@ -219,12 +224,12 @@
     (wrap-response response {:type slug})))
 
 (action item-detail [params slug id]
-  (let [response (render slug (content-item slug id) params)]
+  (let [response (render slug (content-item slug id params) params)]
     (wrap-response response {:type slug})))
 
 (action field-detail [params slug id field]
   (let [include (or {(keyword field) (params :include)} {})
-        response (render-field slug (content-item slug id) field (assoc params :include include))]
+        response (render-field slug (content-item slug id params) field (assoc params :include include))]
     (wrap-response response {})))
 
 (action create-content [params slug]

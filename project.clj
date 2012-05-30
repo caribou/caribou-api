@@ -18,6 +18,10 @@
   :ring {:handler caribou.api.core/app
          :servlet-name "caribou-api"
          :init caribou.api.core/init
+         :configurator
+         ~(fn [jetty]
+            (doseq [connector (.getConnectors jetty)]
+              (.setRequestHeaderSize connector 8388608)))
          :port 33443}
   :repositories {"snapshots" {:url "http://battlecat:8080/nexus/content/repositories/snapshots" 
                               :username "deployment" :password "deployment"}
