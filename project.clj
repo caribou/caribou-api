@@ -1,4 +1,4 @@
-(defproject antler/caribou-api "0.4.5"
+(defproject antler/caribou-api "0.4.6"
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [antler/caribou-core "0.6.2"]
@@ -22,9 +22,9 @@
          ~(fn [jetty]
             (doseq [connector (.getConnectors jetty)]
               (.setRequestHeaderSize connector 8388608)))
-         :port 33443}
-  :repositories {"snapshots" {:url "http://battlecat:8080/nexus/content/repositories/snapshots" 
-                              :username "deployment" :password "deployment"}
-                 "releases"  {:url "http://battlecat:8080/nexus/content/repositories/releases" 
-                              :username "deployment" :password "deployment"}})
+         :port 33443})
+  ;; :repositories {"snapshots" {:url "http://battlecat:8080/nexus/content/repositories/snapshots" 
+  ;;                             :username "deployment" :password "deployment"}
+  ;;                "releases"  {:url "http://battlecat:8080/nexus/content/repositories/releases" 
+  ;;                             :username "deployment" :password "deployment"}})
 

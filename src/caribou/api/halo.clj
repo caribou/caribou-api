@@ -7,8 +7,12 @@
 ;; ===============================
 
 (defn halo-endpoint
+  [host route-str]
+  (str host (@config/app :halo-prefix) "/" route-str))
+
+(defn halo-endpoints
   [route-str]
-  (str (@config/app :halo-host) (@config/app :halo-prefix) "/" route-str))
+  (map #(halo-endpoint % route-str) (@config/app :halo-hosts)))
 
 (defn halo-headers
   []
@@ -16,12 +20,14 @@
 
 (defn reload-routes
   [env]
-  (let [halo-endpoint (halo-endpoint "reload-routes")]
-    (http-client/get halo-endpoint {:headers (halo-headers)}))
+  (let [endpoints (halo-endpoints "reload-routes")]
+    (doseq [endpoint endpoints]
+      (http-client/get endpoint {:headers (halo-headers)})))
   env)
 
 (defn reload-models
   [env]
-  (let [halo-endpoint (halo-endpoint "reload-models")]
-    (http-client/get halo-endpoint {:headers (halo-headers)}))
+  (let [endpoints (halo-endpoints "reload-models")]
+    (doseq [endpoint endpoints]
+      (http-client/get endpoint {:headers (halo-headers)})))
   env)
