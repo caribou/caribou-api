@@ -5,13 +5,13 @@ given in the database configuration.
 
 ## Usage
 
-Fire up the API and navigate to http://localhost:33443
-Look at all the models:  http://localhost:33443/models
-Include the fields:  http://localhost:33443/models?include=fields
-And their links:  http://localhost:33443/models?include=fields.link
-Order by the field slugs:  http://localhost:33443/models?include=fields.link&order=fields.slug%20desc
-Limit to 3:  http://localhost:33443/models?include=fields.link&order=fields.slug%20desc&limit=3
-Only include models who have a "Name" field:  http://localhost:33443/models?include=fields.link&order=fields.slug%20desc&limit=3&where=fields.name:Name
+Fire up the API and navigate to it: <pre>http://localhost:33443</pre><br />
+Look at all the models: <pre>http://localhost:33443/models</pre><br />
+Include the fields: <pre>http://localhost:33443/models?include=fields</pre><br />
+And their links: <pre>http://localhost:33443/models?include=fields.link</pre><br />
+Order by the field slugs: <pre>http://localhost:33443/models?include=fields.link&order=fields.slug%20desc</pre><br />
+Limit to 3:  <pre>http://localhost:33443/models?include=fields.link&order=fields.slug%20desc&limit=3</pre><br />
+Only include models who have a "Name" field:  <pre>http://localhost:33443/models?include=fields.link&order=fields.slug%20desc&limit=3&where=fields.name:Name</pre><br />
 
 ## License
 
