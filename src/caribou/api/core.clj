@@ -42,12 +42,16 @@
 (defn content-field [slug id field]
   ((content-item slug id {}) field))
 
-(defn render [slug content opts]
+(defn render
+  "Prepare all various fields types for output as text."
+  [slug content opts]
   (let [model ((keyword slug) @model/models)
         opts (update-in opts [:include] model/process-include)]
     (model/model-render model content opts)))
 
-(defn render-field [slug content field opts]
+(defn render-field
+  "Render a single content field to text, given the field type."
+  [slug content field opts]
   (model/render (-> @model/models (keyword slug) :fields (keyword field)) content opts))
 
 ;; (defn process-include [include]
@@ -60,24 +64,34 @@
 
 ;; formats -----------------------------------------------
 
-(defn wrap-jsonp [callback result]
+(defn wrap-jsonp
+  "Turn a callback name and a result into a jsonp response."
+  [callback result]
   (str callback "(" result ")"))
 
-(defn to-csv-column [bulk key]
+(defn to-csv-column
+  "Translate a list into something that can inhabit a single csv row."
+  [bulk key]
   (let [morph (bulk (keyword key))]
     (cond
      (or (seq? morph) (vector? morph) (list? morph)) (join "|" (map #(str (last (first %))) morph))
      :else (str morph))))
 
-(defn to-csv [headings bulk]
+(defn to-csv
+  "Convert a bunch of data to CSV."
+  [headings bulk]
   (csv/write-csv [(filter identity (map #(to-csv-column bulk %) headings))]))
 
 (def prep-xml)
 
-(defn prep-xml-item [bulk]
+(defn prep-xml-item
+  "Convert something into XML."
+  [bulk]
   (map (fn [key] [key (prep-xml (bulk key))]) (keys bulk)))
 
-(defn prep-xml [bulk]
+(defn prep-xml
+  "Convert everything into XML."
+  [bulk]
   (cond
    (map? bulk) (prep-xml-item bulk)
    (or (seq? bulk) (vector? bulk) (list? bulk)) (map (fn [item]
@@ -105,7 +119,9 @@
               (map? bulk) (str header (to-csv headings bulk))
               (or (seq? bulk) (vector? bulk) (list? bulk)) (apply str (cons header (map #(to-csv headings %) bulk))))))})
 
-(defmacro action [slug path-args expr]
+(defmacro action
+  "Define an API action with the given slug and path."
+  [slug path-args expr]
   `(defn ~slug [~(first path-args)]
      (log :action (str ~(name slug) " => " ~(first path-args)))
      ;; (if (any-role-granted? :admin)
@@ -126,7 +142,9 @@
        ;;  (assoc error :meta {:status 403 :msg "you do not have access to this resource"})))))
        ;; (redirect "/permission-denied"))))
 
-(defn wrap-response [response meta]
+(defn wrap-response
+  "Form a response from raw stuff."
+  [response meta]
   {:meta (merge {:status "200" :msg "OK"} meta)
    :response response})
 
@@ -155,7 +173,9 @@
 (action home [params]
   (wrap-response {} {}))
 
-(defn upload [params]
+(defn upload
+  "Handle a file upload over xdm."
+  [params]
   (log :action (str "upload => " params))
   (let [upload (params :upload)
         asset (model/create
@@ -283,7 +303,9 @@
 
 (declare app)
 
-(defn init []
+(defn init
+  "Initialize the API."
+  []
   (config/init)
   (model/init)
 
