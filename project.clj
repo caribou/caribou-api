@@ -27,4 +27,4 @@
          ~(fn [jetty]
             (doseq [connector (.getConnectors jetty)]
               (.setRequestHeaderSize connector 8388608)))
-         :port 33443}))
+         :port 33443})
