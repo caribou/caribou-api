@@ -1,6 +1,5 @@
 (ns caribou.api.core
   (:use compojure.core
-        [clojure.string :only (join split)]
         [cheshire.core :only (generate-string encode)]
         [cheshire.custom :only (add-encoder)]
         [ring.util.response :only (redirect)])
@@ -9,7 +8,8 @@
         ;; [sandbar.stateful-session :only
         ;;  (wrap-stateful-session session-put! session-get session-delete-key!)])
   (:use caribou.debug)
-  (:require [caribou.db :as db]
+  (:require [clojure.string :as string]
+            [caribou.db :as db]
             [caribou.model :as model]
             [caribou.util :as util]
             [caribou.config :as config]
@@ -56,9 +56,9 @@
 
 ;; (defn process-include [include]
 ;;   (if (and include (not (empty? include)))
-;;     (let [clauses (split include #",")
-;;           paths (map #(split % #"\.") clauses)
-;;           maps (reduce #(assoc %1 (keyword (first %2)) (process-include (join "." (rest %2)))) {} paths)]
+;;     (let [clauses (string/split include #",")
+;;           paths (map #(string/split % #"\.") clauses)
+;;           maps (reduce #(assoc %1 (keyword (first %2)) (process-include (string/join "." (rest %2)))) {} paths)]
 ;;       maps)
 ;;     {}))
 
@@ -74,7 +74,7 @@
   [bulk key]
   (let [morph (bulk (keyword key))]
     (cond
-     (or (seq? morph) (vector? morph) (list? morph)) (join "|" (map #(str (last (first %))) morph))
+     (or (seq? morph) (vector? morph) (list? morph)) (string/join "|" (map #(str (last (first %))) morph))
      :else (str morph))))
 
 (defn to-csv
@@ -132,7 +132,7 @@
                  handler# (or (format-handlers (keyword format#)) (format-handlers :json))]
              (handler# result# ~(first path-args)))
            (catch Exception e#
-             (log :error (str "error rendering /" (join "/" [~@(rest path-args)]) ": "
+             (log :error (str "error rendering /" (string/join "/" [~@(rest path-args)]) ": "
                               (util/render-exception e#)))
              (generate-string
               ;; (json-str
@@ -173,16 +173,24 @@
 (action home [params]
   (wrap-response {} {}))
 
+(defn slugify-filename
+  [s]
+  (.toLowerCase
+   (string/replace
+    (string/join "-" (re-seq #"[a-zA-Z0-9.]+" s))
+    #"^[0-9]" "-")))
+
 (defn upload
   "Handle a file upload over xdm."
   [params]
   (log :action (str "upload => " params))
   (let [upload (params :upload)
+        slug (slugify-filename (:filename upload))
         asset (model/create
                :asset
-               {:filename (upload :filename)
-                :content_type (upload :content-type)
-                :size (upload :size)})
+               {:filename slug
+                :content_type (:content-type upload)
+                :size (:size upload)})
         dir (model/asset-dir asset)
         path (model/asset-path asset)
         response (str "
@@ -205,8 +213,6 @@
                 )]
     (.mkdirs (io/file (util/pathify [(@config/app :asset-dir) dir])))
     (io/copy (-> params :upload :tempfile) (io/file (util/pathify [(@config/app :asset-dir) path])))
-    ;; (.mkdirs (io/file (str "public/" dir)))
-    ;; (io/copy (-> params :upload :tempfile) (io/file (str "public/" path)))
     response))
 
 (action list-all [params slug]
