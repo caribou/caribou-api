@@ -3,10 +3,6 @@
         [cheshire.core :only (generate-string encode)]
         [cheshire.custom :only (add-encoder)]
         [ring.util.response :only (redirect)])
-        ;; [sandbar.auth :only
-        ;;  (ensure-any-role-if any-role-granted? current-username logout! with-security with-secure-channel)]
-        ;; [sandbar.stateful-session :only
-        ;;  (wrap-stateful-session session-put! session-get session-delete-key!)])
   (:use caribou.debug)
   (:require [clojure.string :as string]
             [caribou.db :as db]
@@ -19,7 +15,6 @@
             [clojure.java.io :as io]
             [clojure-csv.core :as csv]
             [clojure.data.xml :as xml]
-            ;; [caribou.api.account :as account]
             [caribou.api.halo :as api-halo]))
 
 (def error
@@ -228,6 +223,7 @@
           (merge
            params
            {:include include :limit limit :offset offset :order order :where where})
+          _ (println included)
           found (model/find-all slug included)
           response (map #(render slug % included) found)
           showing (count response)
