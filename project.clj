@@ -1,12 +1,9 @@
 (defproject antler/caribou-api "0.5.7"
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.3.0"]
-                 [antler/caribou-core "0.6.7"]
+                 [antler/caribou-core "0.6.9"]
                  [compojure "1.1.0"]
-                 [ring "1.1.0"
-                  :exclusions [org.clojure/clojure
-                               clj-stacktrace
-                               hiccup]]
+                 [ring "1.1.0"]
                  [org.clojars.doo/cheshire "2.2.3"]
                  [org.clojure/data.xml "0.0.3"]
                  [clojure-csv/clojure-csv "1.3.2"]
