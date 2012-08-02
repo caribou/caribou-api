@@ -7,6 +7,7 @@
                  [org.clojars.doo/cheshire "2.2.3"]
                  [org.clojure/data.xml "0.0.3"]
                  [clojure-csv/clojure-csv "1.3.2"]
+                 [swank-clojure "1.4.2"]
                  ;; [antler/sandbar "0.4.0"]
                  [clj-http "0.3.6"]]
   :main caribou.api.core

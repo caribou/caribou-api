@@ -5,6 +5,7 @@
         [ring.util.response :only (redirect)])
   (:use caribou.debug)
   (:require [clojure.string :as string]
+            [swank.swank :as swank]
             [caribou.db :as db]
             [caribou.model :as model]
             [caribou.util :as util]
@@ -210,7 +211,8 @@
     (io/copy (-> params :upload :tempfile) (io/file (util/pathify [(@config/app :asset-dir) path])))
     response))
 
-(action list-all [params slug]
+(defn find-by-params
+  [params slug]
   (if ((keyword slug) @model/models)
     (let [include (params :include)
           order (or (params :order) "position asc")
@@ -240,6 +242,9 @@
                                :where where
                                :order order}))
     (merge error {:meta {:msg "no model by that name"}})))
+
+(action list-all [params slug]
+  (find-by-params params slug))
 
 (action model-spec [params slug]
   (let [response (render "model" (first (db/query "select * from model where slug = '%1'" slug)) {:include {:fields {}}})]
@@ -352,9 +357,11 @@
         ;; (with-security authorize)
         handler/site
         ;; wrap-stateful-session
-        (db/wrap-db @config/db))))
+        (db/wrap-db @config/db)))
         ;; (with-secure-channel
         ;;   security-config
         ;;   (@config/app :api-port)
-        ;;   (@config/app :api-ssl-port)))))
+  ;;   (@config/app :api-ssl-port)))))
+
+  (swank/start-server :host "127.0.0.1" :port 4009))
 
