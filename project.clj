@@ -1,4 +1,4 @@
-(defproject antler/caribou-api "0.5.9"
+(defproject antler/caribou-api "0.5.10"
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [antler/caribou-core "0.6.11"]
