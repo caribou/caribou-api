@@ -3,7 +3,6 @@
         [cheshire.core :only (generate-string encode)]
         [cheshire.custom :only (add-encoder)]
         [ring.util.response :only (redirect)])
-  (:use caribou.debug)
   (:require [clojure.string :as string]
             [swank.swank :as swank]
             [caribou.db :as db]
@@ -16,6 +15,7 @@
             [clojure.java.io :as io]
             [clojure-csv.core :as csv]
             [clojure.data.xml :as xml]
+            [caribou.logger :as log]
             [caribou.api.halo :as api-halo]))
 
 (def error
@@ -119,7 +119,7 @@
   "Define an API action with the given slug and path."
   [slug path-args expr]
   `(defn ~slug [~(first path-args)]
-     (log :action (str ~(name slug) " => " ~(first path-args)))
+     (log/debug (str ~(name slug) " => " ~(first path-args)) :action)
      ;; (if (any-role-granted? :admin)
        (let ~(vec (apply concat (map (fn [p] [`~p `(~(first path-args) ~(keyword p))]) (rest path-args))))
          (try
@@ -128,8 +128,8 @@
                  handler# (or (format-handlers (keyword format#)) (format-handlers :json))]
              (handler# result# ~(first path-args)))
            (catch Exception e#
-             (log :error (str "error rendering /" (string/join "/" [~@(rest path-args)]) ": "
-                              (util/render-exception e#)))
+             (log/debug (str "error rendering /" (string/join "/" [~@(rest path-args)]) ": "
+                             (util/render-exception e#)) :error)
              (generate-string
               ;; (json-str
               ~(reduce #(assoc %1 (keyword %2) %2) error path-args)))))
@@ -179,7 +179,7 @@
 (defn upload
   "Handle a file upload over xdm."
   [params]
-  (log :action (str "upload => " params))
+  (log/debug (str "upload => " params) :action)
   (let [upload (params :upload)
         slug (slugify-filename (:filename upload))
         asset (model/create
@@ -225,7 +225,6 @@
           (merge
            params
            {:include include :limit limit :offset offset :order order :where where})
-          _ (println included)
           found (model/find-all slug included)
           response (map #(render slug % included) found)
           showing (count response)
