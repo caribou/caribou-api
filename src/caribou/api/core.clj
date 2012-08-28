@@ -33,7 +33,7 @@
   (model/find-all slug params))
 
 (defn content-item [slug id params]
-  (model/find-one slug (merge params {:where (db/clause "id:%1" [id])})))
+  (model/find-one slug (merge params {:where (util/clause "id:%1" [id])})))
 
 (defn content-field [slug id field]
   ((content-item slug id {}) field))
@@ -246,7 +246,7 @@
   (find-by-params params slug))
 
 (action model-spec [params slug]
-  (let [response (render "model" (first (db/query "select * from model where slug = '%1'" slug)) {:include {:fields {}}})]
+  (let [response (render "model" (first (util/query "select * from model where slug = '%1'" slug)) {:include {:fields {}}})]
     (wrap-response response {:type slug})))
 
 (action item-detail [params slug id]
@@ -276,7 +276,7 @@
   params)
 
 ;; (defn login [params]
-;;   (let [account (first (model/rally :account {:where (str "email = '" (db/zap (params :email)) "'")}))
+;;   (let [account (first (model/rally :account {:where (str "email = '" (util/zap (params :email)) "'")}))
 ;;         crypted (account/crypt (params :password))]
 ;;     (if (and account (= crypted (account :crypted_password)))
 ;;       (do
