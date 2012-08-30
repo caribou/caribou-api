@@ -362,5 +362,6 @@
         ;;   (@config/app :api-port)
   ;;   (@config/app :api-ssl-port)))))
 
-  (swank/start-server :host "127.0.0.1" :port 4009))
+  (if (= :development (config/environment))
+    (swank/start-server :host "127.0.0.1" :port 4009)))
 
