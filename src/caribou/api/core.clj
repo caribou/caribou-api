@@ -9,6 +9,7 @@
             [caribou.model :as model]
             [caribou.util :as util]
             [caribou.config :as config]
+            [caribou.asset :as asset]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.java.jdbc :as sql]
@@ -176,6 +177,15 @@
     (string/join "-" (re-seq #"[a-zA-Z0-9.]+" s))
     #"^[0-9]" "-")))
 
+(defn commit-asset-to-file
+  [dir path file]
+  (.mkdirs (io/file (util/pathify [(@config/app :asset-dir) dir])))
+  (io/copy file (io/file (util/pathify [(@config/app :asset-dir) path]))))
+
+(defn commit-asset-to-s3
+  [dir path file]
+  (asset/upload-to-s3 path file))
+
 (defn upload
   "Handle a file upload over xdm."
   [params]
@@ -187,8 +197,9 @@
                {:filename slug
                 :content_type (:content-type upload)
                 :size (:size upload)})
-        dir (model/asset-dir asset)
-        path (model/asset-path asset)
+        dir (asset/asset-dir asset)
+        location (asset/asset-location asset)
+        path (asset/asset-path asset)
         response (str "
 <!doctype html>
 <html>
@@ -207,8 +218,8 @@
 </html>
 "
                 )]
-    (.mkdirs (io/file (util/pathify [(@config/app :asset-dir) dir])))
-    (io/copy (-> params :upload :tempfile) (io/file (util/pathify [(@config/app :asset-dir) path])))
+    (commit-asset-to-s3 dir location (-> params :upload :tempfile))
+    ;; (commit-asset-to-file dir path (-> params :upload :tempfile))
     response))
 
 (defn find-by-params
