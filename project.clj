@@ -2,8 +2,8 @@
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [antler/caribou-core "0.7.2"]
-                 [compojure "1.1.0"]
-                 [ring "1.1.0"]
+                 [compojure "1.1.3"]
+                 [ring "1.1.6"]
                  [org.clojars.doo/cheshire "2.2.3"]
                  [org.clojure/data.xml "0.0.3"]
                  [clojure-csv/clojure-csv "1.3.2"]
