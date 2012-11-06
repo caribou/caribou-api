@@ -357,7 +357,8 @@
         (OPTIONS  "/:slug/:id" {params :params} (item-detail params))
         (OPTIONS  "/:slug/:id/:field" {params :params} (field-detail params))
 
-        (route/not-found "NONONONONONON")))
+        (route/not-found "NONONONONONON"))
+      (route/not-found "NONONONONONON"))
 
     (if (@config/app :halo-enabled)
       (do
