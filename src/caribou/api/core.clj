@@ -326,52 +326,55 @@
   (config/init)
   (model/init)
 
-  (defroutes main-routes
-    ;; (route/files "/" {:root (@config/app :api-public)})
-    (route/files "/" {:root (@config/app :asset-dir)})
-    (route/resources "/")
-    (GET  "/" {params :params} (home params))
-    (POST "/upload" {params :params} (upload params))
+  (let [api-prefix (or (-> @config/app :api :url-prefix) "")]
+    (defroutes main-routes
+      ;; (route/files "/" {:root (@config/app :api-public)})
+      (context api-prefix []
+        (route/files "/" {:root (@config/app :asset-dir)})
+        (route/resources "/")
+        (GET  "/" {params :params} (home params))
+        (POST "/upload" {params :params} (upload params))
 
-    ;; (GET  "/permission-denied" {params :params} (permission-denied params))
-    ;; (POST "/login" {params :params} (login params))
-    (GET  "/:slug.:format" {params :params} (list-all params))
-    (POST "/:slug.:format" {params :params} (create-content params))
-    (GET  "/:slug/:id.:format" {params :params} (item-detail params))
-    (PUT  "/:slug/:id.:format" {params :params} (update-content params))
-    (DELETE  "/:slug/:id.:format" {params :params} (delete-content params))
-    (GET  "/:slug/:id/:field.:format" {params :params} (field-detail params))
+        ;; (GET  "/permission-denied" {params :params} (permission-denied params))
+        ;; (POST "/login" {params :params} (login params))
+        (GET  "/:slug.:format" {params :params} (list-all params))
+        (POST "/:slug.:format" {params :params} (create-content params))
+        (GET  "/:slug/:id.:format" {params :params} (item-detail params))
+        (PUT  "/:slug/:id.:format" {params :params} (update-content params))
+        (DELETE  "/:slug/:id.:format" {params :params} (delete-content params))
+        (GET  "/:slug/:id/:field.:format" {params :params} (field-detail params))
 
-    (GET  "/:slug" {params :params} (list-all params))
-    (POST "/:slug" {params :params} (create-content params))
-    (GET  "/:slug/:id" {params :params} (item-detail params))
-    (PUT  "/:slug/:id" {params :params} (update-content params))
-    (DELETE  "/:slug/:id" {params :params} (delete-content params))
-    (GET  "/:slug/:id/:field" {params :params} (field-detail params))
+        (GET  "/:slug" {params :params} (list-all params))
+        (POST "/:slug" {params :params} (create-content params))
+        (GET  "/:slug/:id" {params :params} (item-detail params))
+        (PUT  "/:slug/:id" {params :params} (update-content params))
+        (DELETE  "/:slug/:id" {params :params} (delete-content params))
+        (GET  "/:slug/:id/:field" {params :params} (field-detail params))
 
-    (OPTIONS  "/" {params :params} (home params))
-    (OPTIONS  "/upload" {params :params} (upload params))
-    (OPTIONS  "/:slug" {params :params} (list-all params))
-    (OPTIONS  "/:slug/:id" {params :params} (item-detail params))
-    (OPTIONS  "/:slug/:id/:field" {params :params} (field-detail params))
+        (OPTIONS  "/" {params :params} (home params))
+        (OPTIONS  "/upload" {params :params} (upload params))
+        (OPTIONS  "/:slug" {params :params} (list-all params))
+        (OPTIONS  "/:slug/:id" {params :params} (item-detail params))
+        (OPTIONS  "/:slug/:id/:field" {params :params} (field-detail params))
 
-    (route/not-found "NONONONONONON"))
+        (route/not-found "NONONONONONON"))
+      (route/not-found "NONONONONONON"))
 
-  (if (@config/app :halo-enabled)
-    (do
-      (model/add-hook :page [:after_destroy :after_save] :halo-reload-routes api-halo/reload-routes)
-      (model/add-hook :model [:after_destroy :after_save] :halo-reload-models api-halo/reload-models)))
+    (if (@config/app :halo-enabled)
+      (do
+        (model/add-hook :page [:after_destroy :after_save] :halo-reload-routes api-halo/reload-routes)
+        (model/add-hook :model [:after_destroy :after_save] :halo-reload-models api-halo/reload-models)))
 
-  (def app
-    (-> main-routes
-        ;; (with-security authorize)
-        handler/site
-        ;; wrap-stateful-session
-        (db/wrap-db @config/db)))
-        ;; (with-secure-channel
-        ;;   security-config
-        ;;   (@config/app :api-port)
-  ;;   (@config/app :api-ssl-port)))))
+    (def app
+      (-> main-routes
+          ;; (with-security authorize)
+          handler/site
+          ;; wrap-stateful-session
+          (db/wrap-db @config/db))))
+          ;; (with-secure-channel
+          ;;   security-config
+          ;;   (@config/app :api-port)
+    ;;   (@config/app :api-ssl-port)))))
 
   (if-let [swank-port (:api-swank-port @config/app)]
     (if (= :development (config/environment))
