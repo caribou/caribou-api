@@ -227,7 +227,7 @@
   (if ((keyword slug) @model/models)
     (let [include (params :include)
           order (or (params :order) "position asc")
-          page_size (or (params :page_size) "30")
+          page_size (or (params :page_size) "300")
           page (Integer/parseInt (or (params :page) "1"))
           limit (Integer/parseInt (or (params :limit) page_size))
           offset (or (params :offset) (* limit (dec page)))
