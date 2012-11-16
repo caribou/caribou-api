@@ -2,14 +2,14 @@
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [antler/caribou-core "0.7.12"]
-                 [compojure "1.1.3"]
+                 [compojure "1.1.3" :exclusions [ring/ring-core]]
                  [ring "1.1.6"]
                  [cheshire "4.0.3"]
                  [org.clojure/data.xml "0.0.6"]
-                 [clojure-csv/clojure-csv "1.3.2"]
+                 [clojure-csv "1.3.2" :exclusions [org.clojure/clojure]]
                  [swank-clojure "1.4.2"]
                  ;; [antler/sandbar "0.4.0"]
-                 [clj-http "0.3.6"]]
+                 [clj-http "0.5.5"]]
   :main caribou.api.core
   :jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n"]
   :autodoc {:name "Caribou API"
