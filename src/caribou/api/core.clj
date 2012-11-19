@@ -34,7 +34,8 @@
   (model/find-all slug params))
 
 (defn content-item [slug id params]
-  (model/find-one slug (merge params {:where (util/clause "id:%1" [id])})))
+  (first
+   (model/find-all slug (merge params {:where (util/clause "id:%1" [id])}))))
 
 (defn content-field [slug id field]
   ((content-item slug id {}) field))
