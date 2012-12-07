@@ -275,7 +275,8 @@
     (wrap-response response {:type slug})))
 
 (action update-content [params slug id]
-  (let [content (model/update slug id (ensure-lists-in (params (keyword slug))))
+  (let [content-params (ensure-lists-in (params (keyword slug)))
+        content (model/update slug id content-params (select-keys params [:locale]))
         response (render slug content params)]
     (wrap-response response {:type slug})))
 
