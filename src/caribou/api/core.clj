@@ -219,8 +219,10 @@
 </html>
 "
                 )]
-    (commit-asset-to-s3 dir location (-> params :upload :tempfile))
-    ;; (commit-asset-to-file dir path (-> params :upload :tempfile))
+    (if (:asset-bucket @config/app)
+      ;; (commit-asset-to-s3 dir location (-> params :upload :tempfile))
+      (asset/upload-to-s3 location (-> params :upload :tempfile))
+      (asset/persist-asset-on-disk dir path (-> params :upload :tempfile)))
     response))
 
 (defn find-by-params
