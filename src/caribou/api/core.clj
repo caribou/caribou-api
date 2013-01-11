@@ -152,8 +152,9 @@
   [col]
   (try
     (cond
-     (map? col) (let [int-test (doall (map #(Integer/parseInt (name %)) (keys col)))]
-                  (vals col))
+     (map? col)
+     (let [int-test (doall (map #(Integer/parseInt (name %)) (keys col)))]
+       (vals col))
      :else col)
     (catch Exception e
       col)))
@@ -324,6 +325,16 @@
 
 (declare app)
 
+(defn show-params-impl
+  [request]
+  (println (str request)))
+
+(defn show-params
+  [handler]
+  (fn [request]
+    (show-params-impl request)
+    (handler request)))
+
 (defn init
   "Initialize the API."
   []
@@ -374,6 +385,7 @@
           ;; (with-security authorize)
           handler/site
           ;; wrap-stateful-session
+          ;; (show-params)
           (db/wrap-db @config/db))))
           ;; (with-secure-channel
           ;;   security-config
