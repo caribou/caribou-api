@@ -8,6 +8,7 @@
             [caribou.db :as db]
             [caribou.model :as model]
             [caribou.field-protocol :as field]
+            [caribou.model-association :as model-association]
             [caribou.util :as util]
             [caribou.config :as config]
             [caribou.asset :as asset]
@@ -46,7 +47,7 @@
   [slug content opts]
   (let [model ((keyword slug) @model/models)
         opts (update-in opts [:include] model/process-include)]
-    (model/model-render model content opts)))
+    (model-association/model-render model content opts)))
 
 (defn render-field
   "Render a single content field to text, given the field type."
