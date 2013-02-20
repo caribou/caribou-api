@@ -7,6 +7,7 @@
             [swank.swank :as swank]
             [caribou.db :as db]
             [caribou.model :as model]
+            [caribou.field-protocol :as field]
             [caribou.util :as util]
             [caribou.config :as config]
             [caribou.asset :as asset]
@@ -50,7 +51,7 @@
 (defn render-field
   "Render a single content field to text, given the field type."
   [slug content field opts]
-  (model/render (-> @model/models (keyword slug) :fields (keyword field)) content opts))
+  (field/render (-> @model/models (keyword slug) :fields (keyword field)) content opts))
 
 ;; (defn process-include [include]
 ;;   (if (and include (not (empty? include)))
