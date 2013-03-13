@@ -230,6 +230,12 @@
 
 (defn find-by-params
   [params slug]
+  ;; Hack warning!  When a model is not found in-memory,
+  ;; re-invoke the models
+  (when-not ((keyword slug) @model/models)
+    (do
+     (println (str "** " slug " ** not found, reloading models"))
+     (model/init)))
   (if ((keyword slug) @model/models)
     (let [include (params :include)
           order (or (params :order) "position asc")
