@@ -181,15 +181,6 @@
     (string/join "-" (re-seq #"[a-zA-Z0-9.]+" s))
     #"^[0-9]" "-")))
 
-(defn commit-asset-to-file
-  [dir path file]
-  (.mkdirs (io/file (util/pathify [(@config/app :asset-dir) dir])))
-  (io/copy file (io/file (util/pathify [(@config/app :asset-dir) path]))))
-
-(defn commit-asset-to-s3
-  [dir path file]
-  (asset/upload-to-s3 path file))
-
 (defn upload
   "Handle a file upload over xdm."
   [params]
@@ -223,7 +214,6 @@
 "
                 )]
     (if (:asset-bucket @config/app)
-      ;; (commit-asset-to-s3 dir location (-> params :upload :tempfile))
       (asset/upload-to-s3 location (-> params :upload :tempfile))
       (asset/persist-asset-on-disk dir path (-> params :upload :tempfile)))
     response))
