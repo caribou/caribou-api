@@ -388,3 +388,176 @@
     (if (= :development (config/environment))
       (swank/start-server :host "127.0.0.1" :port swank-port))))
 
+;; =======
+;; (action home [params]
+;;   (wrap-response {} {}))
+
+;; (defn slugify-filename
+;;   [s]
+;;   (.toLowerCase
+;;    (string/replace
+;;     (string/join "-" (re-seq #"[a-zA-Z0-9.]+" s))
+;;     #"^[0-9]" "-")))
+
+;; (defn commit-asset-to-file
+;;   [dir path file]
+;;   (.mkdirs (io/file (util/pathify [(@config/app :asset-dir) dir])))
+;;   (io/copy file (io/file (util/pathify [(@config/app :asset-dir) path]))))
+
+;; (defn commit-asset-to-s3
+;;   [dir path file]
+;;   (asset/upload-to-s3 path file))
+
+;; (defn upload
+;;   "Handle a file upload over xdm."
+;;   [params]
+;;   (log/debug (str "upload => " params) :action)
+;;   (let [upload (params :upload)
+;;         slug (slugify-filename (:filename upload))
+;;         asset (model/create
+;;                :asset
+;;                {:filename slug
+;;                 :content_type (:content-type upload)
+;;                 :size (:size upload)})
+;;         dir (asset/asset-dir asset)
+;;         location (asset/asset-location asset)
+;;         path (asset/asset-path asset)
+;;         response (str "
+;; <!doctype html>
+;; <html>
+;;     <head>
+;;     <title>upload response</title>
+;;     </head>
+;;     <body>
+;;         <script type=\"text/javascript\">
+;;             parent.rpc.returnUploadResponse({
+;;                 asset_id: " (asset :id) ",
+;;                 url: '" path "',
+;;                 context: '" (params :context) "',
+;;             });
+;;         </script>
+;;     </body>
+;; </html>
+;; "
+;;                 )]
+;;     (if (:asset-bucket @config/app)
+;;       ;; (commit-asset-to-s3 dir location (-> params :upload :tempfile))
+;;       (asset/upload-to-s3 location (-> params :upload :tempfile))
+;;       (asset/persist-asset-on-disk dir path (-> params :upload :tempfile)))
+;;     response))
+
+;; (defn find-by-params
+;;   [params slug]
+;;   ;; Hack warning!  When a model is not found in-memory,
+;;   ;; re-invoke the models
+;;   (when-not ((keyword slug) @model/models)
+;;     (do
+;;      (println (str "** " slug " ** not found, reloading models"))
+;;      (model/init)))
+;;   (if ((keyword slug) @model/models)
+;;     (let [include (params :include)
+;;           order (or (params :order) "position asc")
+;;           page_size (or (params :page_size) "1000")
+;;           page (Integer/parseInt (or (params :page) "1"))
+;;           limit (Integer/parseInt (or (params :limit) page_size))
+;;           offset (or (params :offset) (* limit (dec page)))
+;;           where (params :where)
+;;           included
+;;           (merge
+;;            params
+;;            {:include include :limit limit :offset offset :order order :where where})
+;;           found (model/find-all slug included)
+;;           response (map #(render slug % included) found)
+;;           showing (count response)
+;;           total (db/tally slug)
+;;           extra (if (> (rem total limit) 0) 1 0)
+;;           total_pages (+ extra (quot total limit))]
+;;       (wrap-response response {:type slug
+;;                                :count showing
+;;                                :total_items total
+;;                                :total_pages total_pages
+;;                                :page page
+;;                                :page_size limit
+;;                                :include include
+;;                                :where where
+;;                                :order order}))
+;;     (merge error {:meta {:msg "no model by that name"}})))
+
+;; (action list-all [params slug]
+;;   (find-by-params params slug))
+
+;; (action model-spec [params slug]
+;;   (let [response (render "model" (first (util/query "select * from model where slug = '%1'" slug)) {:include {:fields {}}})]
+;;     (wrap-response response {:type slug})))
+
+;; (action item-detail [params slug id]
+;;   (let [response (render slug (content-item slug id params) params)]
+;;     (wrap-response response {:type slug})))
+
+;; (action field-detail [params slug id field]
+;;   (let [include (or {(keyword field) (params :include)} {})
+;;         response (render-field slug (content-item slug id params) field (assoc params :include include))]
+;;     (wrap-response response {})))
+
+;; (action create-content [params slug]
+;;   (let [response (render slug (model/create slug (ensure-lists-in (params (keyword slug)))) params)]
+;;     (wrap-response response {:type slug})))
+
+;; (action update-content [params slug id]
+;;   (let [content-params (ensure-lists-in (params (keyword slug)))
+;;         content (model/update slug id content-params (select-keys params [:locale]))
+;;         response (render slug content params)]
+;;     (wrap-response response {:type slug})))
+
+;; (action delete-content [params slug id]
+;;   (let [content (model/destroy slug id)
+;;         response (render slug content params)]
+;;     (wrap-response response {:type slug})))
+
+;; (defn permission-denied [params]
+;;   params)
+
+;; ;; (defn login [params]
+;; ;;   (let [account (first (model/rally :account {:where (str "email = '" (util/zap (params :email)) "'")}))
+;; ;;         crypted (account/crypt (params :password))]
+;; ;;     (if (and account (= crypted (account :crypted_password)))
+;; ;;       (do
+;; ;;         (session-put! :current-account account)
+;; ;;         ;; (str "bobobobobobob" (account :email)))
+;; ;;         (redirect "/"))
+;; ;;       (merge error {:error "login failed"}))))
+
+;; ;; ;; routes --------------------------------------------------
+
+;; ;; (defn authorize
+;; ;;   [request]
+;; ;;   (let [uri (:uri request)
+;; ;;         user (session-get :current-account)]
+;; ;;     (if user
+;; ;;       {:name (user :name) :roles #{:admin}}
+;; ;;       (do
+;; ;;         (session-put! :redirect-uri uri)
+;; ;;         (redirect "/permission-denied")))))
+
+;; ;; (def security-config
+;; ;;   [#"/login.*" :ssl
+;; ;;    #".*.css|.*.png" :any-channel
+;; ;;    #".*" :nossl])
+
+
+;; ;; ===============================
+;; ;; API app init
+;; ;; ===============================
+
+;; (declare app)
+
+;; (defn show-params-impl
+;;   [request]
+;;   (println (str request)))
+
+;; (defn show-params
+;;   [handler]
+;;   (fn [request]
+;;     (show-params-impl request)
+;;     (handler request)))
+;; >>>>>>> 41ec72763d2eff274ca0e98a0ab0d068fa9763d8

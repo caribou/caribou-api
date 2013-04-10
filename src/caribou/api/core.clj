@@ -41,9 +41,16 @@
             [caribou.logger :as log]
             [caribou.app.handler :as handler]))
 
+(declare handler)
+
 (defn reload-pages
   []
-  (pages/add-page-routes routes/api-routes 'caribou.api.controllers "_api"))
+  (pages/add-page-routes routes/api-routes 'caribou.api.controllers "/_api"))
+
+(defn api-wrapper
+  [handler]
+  (fn [request]
+    (handler request)))
 
 (defn init
   []
@@ -57,7 +64,7 @@
     :halo-reset handler/reset-handler})
   (def handler
     (-> (handler/handler)
-        (admin-wrapper)
+        (api-wrapper)
         (wrap-reload)
         (wrap-file (@config/app :asset-dir))
         (wrap-resource (@config/app :public-dir))
@@ -73,9 +80,9 @@
         (wrap-nested-params)
         (wrap-params)
         (db/wrap-db @config/db)
-        (wrap-session {:store (cookie-store {:key "vEanzxBCC9xkQUoQ"})
-                       :cookie-name "caribou-admin-session"
-                       :cookie-attrs {:max-age (days-in-seconds 90)}})
+        ;; (wrap-session {:store (cookie-store {:key "vEanzxBCC9xkQUoQ"})
+        ;;                :cookie-name "caribou-admin-session"
+        ;;                :cookie-attrs {:max-age (days-in-seconds 90)}})
         (wrap-cookies)))
 
   (swank/start-server :host "127.0.0.1" :port 4007))
