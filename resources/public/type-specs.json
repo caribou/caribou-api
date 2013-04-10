@@ -4,6 +4,7 @@
    "integer": {"name":"Integer", "slug":"integer", "options": ["defaultString"]},
    "decimal": {"name":"Decimal", "slug":"decimal", "options": ["defaultString"]},
    "string": {"name":"Single Line Text", "slug":"string", "options": ["defaultString"]},
+   "password": {"name":"Password", "slug":"password", "options": ["defaultString"]},
    "text": {"name":"Paragraph Text", "slug":"text", "options": []},
    "slug": {"name":"Slug", "slug":"slug", "options": ["slugLink"]},
    "urlslug": {"name":"Url Slug", "slug":"urlslug", "options": ["slugLink"]},
