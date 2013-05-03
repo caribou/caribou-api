@@ -31,12 +31,12 @@
             [caribou.util :as util]
             [caribou.logger :as log]
             [caribou.asset :as asset]
-            [caribou.app.i18n :as i18n]
+            [caribou.core :as caribou]
             [caribou.app.pages :as pages]
             [caribou.app.template :as template]
-            [caribou.app.halo :as halo]
             [caribou.app.middleware :as middleware]
             [caribou.app.request :as request]
+            [caribou.app.config :as app-config]
             [caribou.api.routes :as routes]
             [caribou.logger :as log]
             [caribou.app.handler :as handler]))
@@ -52,37 +52,35 @@
   (fn [request]
     (handler request)))
 
+(def config (app-config/default-config))
+
 (defn init
   []
-  (config/init)
-  (model/init)
-  (i18n/init)
-  (template/init)
-  (reload-pages)
-  (halo/init
-   {:reload-pages reload-pages
-    :halo-reset handler/reset-handler})
-  (def handler
-    (-> (handler/handler)
-        (api-wrapper)
-        (wrap-reload)
-        (wrap-file (@config/app :asset-dir))
-        (wrap-resource (@config/app :public-dir))
-        (wrap-file-info)
-        (wrap-head)
-        (lichen/wrap-lichen (@config/app :asset-dir))
-        (middleware/wrap-servlet-path-info)
-        (middleware/wrap-xhr-request)
-        (request/wrap-request-map)
-        (wrap-json-params)
-        (wrap-multipart-params)
-        (wrap-keyword-params)
-        (wrap-nested-params)
-        (wrap-params)
-        (db/wrap-db @config/db)
-        ;; (wrap-session {:store (cookie-store {:key "vEanzxBCC9xkQUoQ"})
-        ;;                :cookie-name "caribou-admin-session"
-        ;;                :cookie-attrs {:max-age (days-in-seconds 90)}})
-        (wrap-cookies)))
+  (let [config (caribou/init config)]
+    (caribou/with-caribou config
+      (reload-pages)
+      (println "ASSETS CONFIG" (keys config/config))
+      (def handler
+        (-> (handler/handler #'reload-pages)
+            (api-wrapper)
+            (wrap-reload)
+            (wrap-file (config/draw :assets :dir))
+            (wrap-resource (config/draw :app :public-dir))
+            (wrap-file-info)
+            (wrap-head)
+            (lichen/wrap-lichen (config/draw :assets :dir))
+            (middleware/wrap-servlet-path-info)
+            (middleware/wrap-xhr-request)
+            (request/wrap-request-map)
+            (wrap-json-params)
+            (wrap-multipart-params)
+            (wrap-keyword-params)
+            (wrap-nested-params)
+            (wrap-params)
+            (handler/wrap-caribou config)
+            ;; (wrap-session {:store (cookie-store {:key "vEanzxBCC9xkQUoQ"})
+            ;;                :cookie-name "caribou-admin-session"
+            ;;                :cookie-attrs {:max-age (days-in-seconds 90)}})
+            (wrap-cookies)))
 
-  (swank/start-server :host "127.0.0.1" :port 4007))
+      (swank/start-server :host "127.0.0.1" :port 4007))))
