@@ -12,16 +12,8 @@
         [ring.middleware.session :only (wrap-session)]
         [ring.middleware.session.cookie :only (cookie-store)]
         [ring.middleware.cookies :only (wrap-cookies)]
-        [ring.middleware.content-type :only (wrap-content-type)]
-        [cheshire.core :only (generate-string encode)]
-        [cheshire.custom :only (add-encoder)]
-        [ring.util.response :only (redirect)])
-  (:require [clojure.string :as string]
-            [clojure.java.jdbc :as sql]
-            [clojure.java.io :as io]
-            [clojure-csv.core :as csv]
-            [clojure.data.xml :as xml]
-            [swank.swank :as swank]
+        [ring.middleware.content-type :only (wrap-content-type)])
+  (:require [swank.swank :as swank]
             [lichen.core :as lichen]
             [caribou.config :as config]
             [caribou.db :as db]
@@ -59,7 +51,6 @@
   (let [config (caribou/init config)]
     (caribou/with-caribou config
       (reload-pages)
-      (println "ASSETS CONFIG" (keys config/config))
       (def handler
         (-> (handler/handler #'reload-pages)
             (api-wrapper)
