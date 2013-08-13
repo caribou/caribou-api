@@ -1,12 +1,18 @@
 (ns caribou.api.controllers.home
   (:use [caribou.app.controller :only [render]])
-  (:require [caribou.model :as model]
+  (:require [clojure.string :as string]
+            [caribou.model :as model]
             [caribou.logger :as log]))
 
 (defn wrap-response
-  [response]
-  {:meta {:status 200 :msg "OK"}
+  [slug response]
+  {:meta {:status 200 :msg "OK" :type (name slug)}
    :response response})
+
+(defn split-format
+  [model]
+  (let [[key format] (string/split (name model) #"\.")]
+    [(keyword key) (or format :json)]))
 
 (defn home
   [request]
@@ -17,16 +23,18 @@
 (defn index
   [request]
   (let [model-slug (-> request :params :model keyword)
+        [slug format] (split-format model-slug)
         opts (select-keys (:params request) [:limit :offset :include :where :order])
-        items (model/find-all model-slug opts)]
-    (render :json (wrap-response items))))
+        items (model/find-all slug opts)]
+    (render format (wrap-response slug items))))
 
 (defn detail
   [request]
   (let [model-slug (-> request :params :model keyword)
+        [slug format] (split-format model-slug)
         opts (select-keys (:params request) [:limit :offset :include :where :order])
-        items (model/find-one model-slug opts)]
-    (render :json (wrap-response items))))
+        item (model/find-one slug opts)]
+    (render format (wrap-response slug item))))
 
 (defn create
   [request]
@@ -38,7 +46,7 @@
   [request]
   (render
    :json
-   {:yellow :crude}))
+   {:yellow :core}))
 
 (defn delete
   [request]

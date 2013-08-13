@@ -1,11 +1,8 @@
-(defproject antler/caribou-api "0.11.22"
+(defproject antler/caribou-api "0.11.23"
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [antler/caribou-frontend "0.11.26"]
-                 [ring "1.1.6"]
-                 [org.clojure/data.xml "0.0.6"]
-                 [clojure-csv "1.3.2" :exclusions [org.clojure/clojure]]
-                 [swank-clojure "1.4.2"]
+                 [antler/caribou-frontend "0.11.27"]
+;;                 [ring "1.1.6"]
                  [clj-http "0.5.6"
                   :exclusions [org.apache.httpcomponents/httpclient
                                org.apache.httpcomponents/httpcore]]]
