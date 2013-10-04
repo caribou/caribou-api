@@ -1,11 +1,10 @@
-(defproject caribou/caribou-api "0.12.16"
+(defproject caribou/caribou-api "0.12.18"
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [caribou/caribou-frontend "0.12.16"]
+                 [caribou/caribou-frontend "0.12.18"]
                  [clj-http "0.5.6"
                   :exclusions [org.apache.httpcomponents/httpclient
                                org.apache.httpcomponents/httpcore]]]
-  :main caribou.api.core
   :jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n"]
   :autodoc {:name "Caribou API"
             :page-title "Caribou API - Documentation"
