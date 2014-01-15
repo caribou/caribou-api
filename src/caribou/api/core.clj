@@ -36,7 +36,7 @@
 
 (defn reload-pages
   []
-  (pages/add-page-routes routes/api-routes 'caribou.api.controllers "/_api"))
+  (pages/convert-pages-to-routes routes/api-routes 'caribou.api.controllers "/_api"))
 
 (defn api-wrapper
   [handler]
