@@ -68,14 +68,31 @@
       (is (not (.contains body "\"name\":\"Acme\""))) ;; should not contain any reference to Acme
       (is (.contains body "\"name\":\"CorpInc\"")))))
 
-
+(defn delete-test []
+  (testing "Delete response (single item)"
+    (let [body (:body (caribou.api.controllers.home/delete {:params {:model "company.json" :where "id:2"}}))]
+      (is (not (.contains body "\"name\":\"Acme\""))) ;; should not contain any reference to Acme
+      (is (.contains body "\"name\":\"CorpInc\"")))
+    (let [remaining-company (->> (model/gather :company)
+                                 (map :name))]
+      (is (empty? (filter #{"CorpInc"} remaining-company))) ;; CorpInc should be gone
+      (is (seq (filter #{"Acme"} remaining-company))))) ;; Acme should remain
+  (testing "Delete response (everything)"
+    (model/create :company {:name "CorpInc"}) ;; re-add the removed company
+    (caribou.api.controllers.home/delete {:params {:model "company.json"}}) ;; delete everything
+    (let [remaining-company (->> (model/gather :company)
+                                 (map :name))]
+      (is (empty? remaining-company)))))
+      
+    
 
 
 (defn all-model-tests
   []
   (db-fixture invoke-model-test)
   (db-fixture index-test)
-  (db-fixture detail-test))
+  (db-fixture detail-test)
+  (db-fixture delete-test))
 
 
 ;; We test in H2, because it doesn't rely on any external DB.

@@ -50,6 +50,10 @@
 
 (defn delete
   [request]
-  (render
-   :json
-   {:pink :gravity}))
+  (let [model-slug (-> request :params :model keyword)
+        [slug format] (split-format model-slug)
+        opts (select-keys (:params request) [:limit :offset :include :where :order])
+        items (model/find-all slug opts)]
+    (doseq [item items :let [id (:id item)]]
+      (model/destroy slug id))
+    (render format (wrap-response slug items)))) ;; reference the deleted items
