@@ -66,7 +66,8 @@
 (defn detail-test []
   (testing "Detail response"
     (let [body (:body (ctrl/detail
-                       {:params {:model "company.json" :where "id:2"}}))] ;; id 2 is CorpInc
+                       {:params {:model "company.json" :id "2"}}))] ;; id 2 is CorpInc
+      ;; the ID for a detail request is not inside a :where, but directly in the params.
       (is (not (.contains body "\"name\":\"Acme\""))) ;; should not contain any reference to Acme
       (is (.contains body "\"name\":\"CorpInc\"")))))
 

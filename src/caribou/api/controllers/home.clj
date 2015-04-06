@@ -33,8 +33,7 @@
   [request]
   (let [model-slug (-> request :params :model keyword)
         [slug format] (split-format model-slug)
-        opts (select-keys (:params request) [:limit :offset :include :where :order])
-        item (model/find-one slug opts)]
+        item (model/pick slug {:where {:id (-> request :params :id Integer/parseInt)}})]
     (render format (wrap-response slug item))))
 
 
