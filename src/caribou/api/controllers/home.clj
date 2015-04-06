@@ -2,7 +2,8 @@
   (:use [caribou.app.controller :only [render]])
   (:require [clojure.string :as string]
             [caribou.model :as model]
-            [caribou.logger :as log]))
+            [caribou.logger :as log]
+            [clojure.string :as s]))
 
 (defn wrap-response
   [slug response]
@@ -33,7 +34,12 @@
   [request]
   (let [model-slug (-> request :params :model keyword)
         [slug format] (split-format model-slug)
-        item (model/pick slug {:where {:id (-> request :params :id Integer/parseInt)}})]
+        opts (select-keys (:params request) [:limit :offset :include :where :order])
+        item (model/find-one slug (update-in opts [:where]
+                                             #(let [id (-> request :params :id)]
+                                                (if %
+                                                  (str %",id:"id)
+                                                  (str "id:"id)))))]
     (render format (wrap-response slug item))))
 
 
