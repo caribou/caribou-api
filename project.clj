@@ -5,6 +5,8 @@
                  [clj-http "0.5.6"
                   :exclusions [org.apache.httpcomponents/httpclient
                                org.apache.httpcomponents/httpcore]]]
+  :profiles {:dev {:dependencies [[ring/ring-mock "0.2.0"]
+                                  [ring/ring-defaults "0.1.4"]]}}
   :jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n"]
   :ring {:handler caribou.api.core/handler
          :servlet-name "caribou-api"

@@ -38,9 +38,12 @@
 
 (defn create
   [request]
-  (render
-   :json
-   {:ip :bar}))
+  (let [model-slug (-> request :params :model keyword)
+        [slug format] (split-format model-slug)
+        spec (:params request)
+        new-item (model/create slug spec)]
+    (render format (wrap-response slug new-item))))
+
 
 (defn update
   [request]
