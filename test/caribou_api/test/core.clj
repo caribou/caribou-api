@@ -77,15 +77,14 @@
       (is (.contains body "\"name\":\"CorpInc\"")))
     (let [remaining-company (->> (model/gather :company)
                                  (map :name))]
-      (is (empty? (filter #{"CorpInc"} remaining-company))) ;; CorpInc should be gone
-      (is (seq (filter #{"Acme"} remaining-company))))) ;; Acme should remain
+      (is (not (some #{"CorpInc"} remaining-company))) ;; CorpInc should be gone
+      (is (some #{"Acme"} remaining-company)))) ;; Acme should remain
   (testing "Delete response (everything)"
     (model/create :company {:name "CorpInc"}) ;; re-add the removed company
     (ctrl/delete {:params {:model "company.json"}}) ;; delete everything
     (let [remaining-company (->> (model/gather :company)
                                  (map :name))]
       (is (empty? remaining-company)))))
-      
     
 (defn create-test []
   (testing "Detail response"
@@ -102,10 +101,10 @@
 
 (defn all-model-tests
   []
-  ;; (db-fixture invoke-model-test)
-  ;; (db-fixture index-test)
-  ;; (db-fixture detail-test)
-  ;; (db-fixture delete-test)
+  (db-fixture invoke-model-test)
+  (db-fixture index-test)
+  (db-fixture detail-test)
+  (db-fixture delete-test)
   (db-fixture create-test)
   )
 
