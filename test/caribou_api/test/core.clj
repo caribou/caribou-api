@@ -87,7 +87,7 @@
       (is (empty? remaining-company)))))
     
 (defn create-test []
-  (testing "Detail response"
+  (testing "Create response"
     ;; create a new item
     (-> (mock/request :post "" {:model "company" :name "Megacorp" :useless-field "boo!"})
         ((ring-m/wrap-defaults ctrl/create ring-m/api-defaults)))
@@ -99,6 +99,15 @@
              (some #{:useless-field})
              (not)))))
 
+(defn update-test []
+  (testing "Update response"
+    ;; rename Acme as Megacorp
+    (-> (mock/request :put "" {:model "company" :id "1" :name "Megacorp" :useless-field "boo!"})
+        ((ring-m/wrap-defaults ctrl/update ring-m/api-defaults)))
+    (println (model/pick :company {:where {:id 1}}))
+    (is (= (:name (model/pick :company {:where {:id 1}}) "Megacorp")))))
+
+
 (defn all-model-tests
   []
   (db-fixture invoke-model-test)
@@ -106,6 +115,7 @@
   (db-fixture detail-test)
   (db-fixture delete-test)
   (db-fixture create-test)
+  (db-fixture update-test)
   )
 
 

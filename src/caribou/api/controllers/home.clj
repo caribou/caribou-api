@@ -28,6 +28,7 @@
         items (model/find-all slug opts)]
     (render format (wrap-response slug items))))
 
+
 (defn detail
   [request]
   (let [model-slug (-> request :params :model keyword)
@@ -36,22 +37,35 @@
         item (model/find-one slug opts)]
     (render format (wrap-response slug item))))
 
-(defn create
+
+(defn create ;; should we throw an error if we provide an ID?
+             ;; (model/create with an ID is an update)
   [request]
   (let [model-slug (-> request :params :model keyword)
         [slug format] (split-format model-slug)
         spec (:params request)
         new-item (model/create slug spec)]
-    (render format (wrap-response slug new-item))))
+    (render format
+            {:meta {:status 201 :msg "Created" :type (name slug)
+                    :response new-item}})))
 
 
 (defn update
   [request]
-  (render
-   :json
-   {:yellow :core}))
+  (let [model-slug (-> request :params :model keyword)
+        [slug format] (split-format model-slug)
+        spec (:params request)]
+    (if-not (:id spec)
+      (render format {:meta {:status 400 :msg "Missing ID" :type (name slug)}
+                      :response ""})
+      (let [updated-item (model/create slug spec)]
+        (render format (wrap-response slug updated-item))))))
 
-(defn delete
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;; ==============>  need to add update tests 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn delete ;; should we return '204 No Content'?
   [request]
   (let [model-slug (-> request :params :model keyword)
         [slug format] (split-format model-slug)
