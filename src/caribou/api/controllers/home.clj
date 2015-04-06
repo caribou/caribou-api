@@ -61,11 +61,8 @@
       (let [updated-item (model/create slug spec)]
         (render format (wrap-response slug updated-item))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;; ==============>  need to add update tests 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn delete ;; should we return '204 No Content'?
+(defn delete
   [request]
   (let [model-slug (-> request :params :model keyword)
         [slug format] (split-format model-slug)
@@ -73,4 +70,6 @@
         items (model/find-all slug opts)]
     (doseq [item items :let [id (:id item)]]
       (model/destroy slug id))
-    (render format (wrap-response slug items)))) ;; reference the deleted items
+    (render format
+            {:meta {:status 204 :msg "Deleted" :type (name slug)}
+             :response ""})))

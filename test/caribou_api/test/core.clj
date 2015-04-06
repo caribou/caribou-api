@@ -72,9 +72,7 @@
 
 (defn delete-test []
   (testing "Delete response (single item)"
-    (let [body (:body (ctrl/delete {:params {:model "company.json" :where "id:2"}}))]
-      (is (not (.contains body "\"name\":\"Acme\""))) ;; should not contain any reference to Acme
-      (is (.contains body "\"name\":\"CorpInc\"")))
+    (ctrl/delete {:params {:model "company.json" :where "id:2"}})
     (let [remaining-company (->> (model/gather :company)
                                  (map :name))]
       (is (not (some #{"CorpInc"} remaining-company))) ;; CorpInc should be gone
@@ -104,7 +102,7 @@
     ;; rename Acme as Megacorp
     (-> (mock/request :put "" {:model "company" :id "1" :name "Megacorp" :useless-field "boo!"})
         ((ring-m/wrap-defaults ctrl/update ring-m/api-defaults)))
-    (println (model/pick :company {:where {:id 1}}))
+    (model/pick :company {:where {:id 1}})
     (is (= (:name (model/pick :company {:where {:id 1}}) "Megacorp")))))
 
 
