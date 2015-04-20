@@ -1,4 +1,4 @@
-(defproject caribou/caribou-api "0.14.0"
+(defproject caribou/caribou-api "0.14.2"
   :description "The api ring handler for caribou"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [caribou/caribou-frontend "0.14.0"]

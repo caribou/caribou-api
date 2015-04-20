@@ -1,6 +1,7 @@
 (ns caribou-api.test.core
   (:use [clojure.test])
   (:require [caribou.api.controllers.home :as ctrl]
+            [caribou.api.util :as api-util]
             [caribou-api.test :as test]
             [caribou.migrations.bootstrap :as mig]
             [caribou.model :as model]
@@ -66,9 +67,12 @@
 (defn detail-test []
   (testing "Detail response"
     (let [body (:body (ctrl/detail
-                       {:params {:model "company.json" :id "2"}}))] ;; id 2 is CorpInc
-      ;; the ID for a detail request is not inside a :where, but directly in the params.
-      (is (not (.contains body "\"name\":\"Acme\""))) ;; should not contain any reference to Acme
+                       {:params {:model "company.json" :id "2"}}))]
+      ;; id 2 is CorpInc
+      ;; the ID for a detail request is not inside a :where, but
+      ;; directly in the params.
+      (is (not (.contains body "\"name\":\"Acme\"")))
+      ;; should not contain any reference to Acme
       (is (.contains body "\"name\":\"CorpInc\"")))))
 
 (defn delete-test []
@@ -88,7 +92,9 @@
 (defn create-test []
   (testing "Create response"
     ;; create a new item
-    (-> (mock/request :post "" {:model "company" :name "Megacorp" :useless-field "boo!"})
+    (-> (mock/request :post "" {:model "company"
+                                :name "Megacorp"
+                                :useless-field "boo!"})
         ((ring-m/wrap-defaults ctrl/create ring-m/api-defaults)))
     ;; now the new item should be in the DB
     (is (model/pick :company {:where {:name "Megacorp"}}))
@@ -98,14 +104,42 @@
              (some #{:useless-field})
              (not)))))
 
+
+
 (defn update-test []
   (testing "Update response"
     ;; rename Acme as Megacorp
-    (-> (mock/request :put "" {:model "company" :id "1" :name "Megacorp" :useless-field "boo!"})
+    (-> (mock/request :put "" {:model "company"
+                               :id "1"
+                               :name "Megacorp"
+                               :useless-field "boo!"})
         ((ring-m/wrap-defaults ctrl/update ring-m/api-defaults)))
     (model/pick :company {:where {:id 1}})
     (is (= (:name (model/pick :company {:where {:id 1}}) "Megacorp")))))
 
+
+
+
+;;; some sanitization / control of the allowed params
+
+(defn overwrite-params []
+  (testing "Overwrite params"
+    (let [body (:body (ctrl/detail
+                       {:params {:model "company.json" :id "2"}
+                        :caribou.api.controllers.home/sanitize-fn
+                        #(api-util/replace-all-values % {:id "1"})}))]
+      ;; id 2 is CorpInc, but we should have overwritten the id to get Acme.
+      (is (.contains body "\"name\":\"Acme\""))
+      (is (not (.contains body "\"name\":\"CorpInc\""))))
+
+    ;; overwrite params when creating an object
+    (-> (mock/request :post "" {:model "company"
+                                :name "Megacorp"})
+        (assoc :caribou.api.controllers.home/sanitize-fn
+          #(api-util/replace-all-values % {:name "Pokemon"}))
+        ((ring-m/wrap-defaults ctrl/create ring-m/api-defaults)))
+    ;; the new company should have been created under the name "Pokemon"
+    (is (model/pick :company {:where {:name "Pokemon"}}))))
 
 (defn all-model-tests
   []
@@ -115,6 +149,7 @@
   (db-fixture delete-test)
   (db-fixture create-test)
   (db-fixture update-test)
+  (db-fixture overwrite-params)
   )
 
 
