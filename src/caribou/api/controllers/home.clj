@@ -10,7 +10,7 @@
 
 (defn wrap-response
   [slug response]
-  {:status 200 :body "200 : OK"
+  {:meta {:status 200 :msg "OK" :type (name slug)}
    :response response})
 
 
@@ -21,7 +21,13 @@
    {:whats :up}))
 
 
-
+(defn options [request]
+  (let [accepted-methods (if (-> request :params :id)
+                           ["GET" "PUT" "DELETE"]
+                           ["GET" "POST"])]
+    {:status 200
+     :body nil
+     :headers {"Allow" (clojure.string/join ", "accepted-methods)}}))
   
 (defn index
   [request]
@@ -67,7 +73,8 @@
                     spec)
         new-item (model/create slug sani-spec)]
     (render format
-            {:status 201 :body "201 : Created"})))
+            {:meta {:status 201 :msg "Created" :type (name slug)}
+             :response new-item})))
 
 
 (defn update
@@ -80,7 +87,8 @@
                     spec)]
     (if-not (:id spec)
       (render format
-              {:status 400 :body "400 : Missing ID"})
+              {:meta {:status 400 :msg "Missing ID" :type (name slug)}
+               :response ""})
       (let [updated-item (model/create slug sani-spec)]
         (render format (wrap-response slug updated-item))))))
 
@@ -101,4 +109,5 @@
     (doseq [item items :let [id (:id item)]]
       (model/destroy slug id))
     (render format
-            {:status 204 :body "204 : Deleted"})))
+            {:meta {:status 204 :msg "Deleted" :type (name slug)}
+             :response ""})))
