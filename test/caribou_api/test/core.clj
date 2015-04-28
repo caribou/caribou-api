@@ -118,8 +118,18 @@
     (is (= (:name (model/pick :company {:where {:id 1}}) "Megacorp")))))
 
 
+(defn options-test []
+  (testing "OPTIONS method"
+    (let [response
+          (-> (mock/request :options "" {:model "company"})
+              ((ring-m/wrap-defaults ctrl/options ring-m/api-defaults)))]
+      (is (= (get-in response [:headers "Allow"]) "GET, POST")))
+    (let [response
+          (-> (mock/request :options "" {:model "company" :id "1"})
+              ((ring-m/wrap-defaults ctrl/options ring-m/api-defaults)))]
+      (is (= (get-in response [:headers "Allow"]) "GET, PUT, DELETE")))))
 
-
+        
 ;;; some sanitization / control of the allowed params
 
 (defn overwrite-params []
@@ -141,6 +151,7 @@
     ;; the new company should have been created under the name "Pokemon"
     (is (model/pick :company {:where {:name "Pokemon"}}))))
 
+
 (defn all-model-tests
   []
   (db-fixture invoke-model-test)
@@ -150,6 +161,7 @@
   (db-fixture create-test)
   (db-fixture update-test)
   (db-fixture overwrite-params)
+  (db-fixture options-test)
   )
 
 
