@@ -15,28 +15,18 @@
         [ring.middleware.content-type :only (wrap-content-type)])
   (:require [lichen.core :as lichen]
             [caribou.config :as config]
-            [caribou.db :as db]
-            [caribou.model :as model]
-            [caribou.field :as field]
-            [caribou.association :as association]
-            [caribou.util :as util]
-            [caribou.logger :as log]
-            [caribou.asset :as asset]
             [caribou.core :as caribou]
-            [caribou.app.pages :as pages]
-            [caribou.app.template :as template]
             [caribou.app.middleware :as middleware]
             [caribou.app.request :as request]
             [caribou.app.config :as app-config]
             [caribou.api.routes :as routes]
-            [caribou.logger :as log]
             [caribou.app.handler :as handler]))
 
 (declare handler)
 
 (defn reload-pages
   []
-  (pages/convert-pages-to-routes routes/api-routes 'caribou.api.controllers "/_api"))
+  (routes/build-api-routes))
 
 (defn api-wrapper
   [handler]

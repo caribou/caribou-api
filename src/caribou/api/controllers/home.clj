@@ -3,15 +3,17 @@
             [caribou.api.util :refer [split-format queries-to-map]]
             [caribou.model :as model]))
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 
 (defn wrap-response
-  [slug response]
-  {:meta {:status 200 :msg "OK" :type (name slug)}
-   :response response})
+  "Create a response with a 'meta' field for consumption by api user."
+  ([slug response]
+   (wrap-response slug response 200 "OK"))
+  ([slug response status msg]
+   {:meta {:status status :msg msg :type (name slug)}
+    :status status
+    :response response}))
 
 
 (defn home
@@ -73,8 +75,7 @@
                     spec)
         new-item (model/create slug sani-spec)]
     (render format
-            {:meta {:status 201 :msg "Created" :type (name slug)}
-             :response new-item})))
+            (wrap-response slug new-item 201 "Created"))))
 
 
 (defn update
@@ -86,28 +87,26 @@
                     (s-fn spec)
                     spec)]
     (if-not (:id spec)
-      (render format
-              {:meta {:status 400 :msg "Missing ID" :type (name slug)}
-               :response ""})
+      (render format (wrap-response slug nil 400 "Missing ID"))
       (let [updated-item (model/create slug sani-spec)]
         (render format (wrap-response slug updated-item))))))
 
 
 (defn delete
+  "Delete an item. MUST have an ID provided."
   [request]
   (let [model-slug (-> request :params :model)
         [slug format] (split-format model-slug)
         opts (-> (:params request)
-                 (queries-to-map)
-                 (#(if-let [id (-> % :id)]
-                     (assoc-in % [:where :id] id) %))
-                 (select-keys [:limit :offset :include :where :order]))
+                 (queries-to-map)                 
+                 (select-keys [:limit :offset :include :where :order :id]))
         sani-opts (if-let [s-fn (::sanitize-fn request)]
                     (s-fn opts)
                     opts)
-        items (model/gather slug sani-opts)]
-    (doseq [item items :let [id (:id item)]]
-      (model/destroy slug id))
-    (render format
-            {:meta {:status 204 :msg "Deleted" :type (name slug)}
-             :response ""})))
+        item (model/pick slug sani-opts)]
+    (if-let [id (:id sani-opts)]
+      (do (model/destroy slug id)
+          (render format
+                  (wrap-response slug nil 204 "Deleted")))
+      (render format
+              (wrap-response slug nil 400 "Missing ID")))))

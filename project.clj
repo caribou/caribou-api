@@ -1,6 +1,6 @@
 (defproject caribou/caribou-api "0.14.2"
   :description "The api ring handler for caribou"
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
                  [caribou/caribou-frontend "0.14.0"]
                  [clj-http "0.5.6"
                   :exclusions [org.apache.httpcomponents/httpclient

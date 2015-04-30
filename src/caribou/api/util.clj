@@ -9,7 +9,7 @@
 
 ;;; some helpers to control queries
 
-(defn replace-value
+(defn- replace-value
   "Will replace all the values of a given key in nested maps."
   [m k v]
   (clojure.walk/prewalk
