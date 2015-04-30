@@ -111,7 +111,14 @@
           #(api-util/replace-all-values % {:name "Pokemon"}))
         ((ring-m/wrap-defaults ctrl/create ring-m/api-defaults)))
     ;; the new company should have been created under the name "Pokemon"
-    (is (model/pick :company {:where {:name "Pokemon"}}))))
+    (is (model/pick :company {:where {:name "Pokemon"}}))
+
+    ;; overwrite attempted deletion by changing :where
+    (-> (mock/request :delete "" {:model "company" :id 1 :where "name:Acme"})
+        (assoc :caribou.api.controllers.home/sanitize-fn
+          #(api-util/replace-all-values % {:name "Pokemon"}))
+        ((ring-m/wrap-defaults ctrl/delete ring-m/api-defaults)))
+    (is (model/pick :company {:where {:name "Acme"}}))))
 
 
 (defn all-model-tests

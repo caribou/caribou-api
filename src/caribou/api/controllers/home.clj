@@ -95,17 +95,20 @@
 (defn delete
   "Delete an item. MUST have an ID provided."
   [request]
-  (let [model-slug (-> request :params :model)
+  (let [provided-id (get-in request [:params :id])
+        model-slug (-> request :params :model)
         [slug format] (split-format model-slug)
         opts (-> (:params request)
-                 (queries-to-map)                 
+                 (queries-to-map)
+                 ((fn [m] (assoc-in m [:where :id] provided-id)))
                  (select-keys [:limit :offset :include :where :order :id]))
+        ;; allow the sanitize-fn to discard results
         sani-opts (if-let [s-fn (::sanitize-fn request)]
                     (s-fn opts)
                     opts)
         item (model/pick slug sani-opts)]
-    (if-let [id (:id sani-opts)]
-      (do (model/destroy slug id)
+    (if provided-id
+      (do (model/destroy slug (:id item))
           (render format
                   (wrap-response slug nil 204 "Deleted")))
       (render format
