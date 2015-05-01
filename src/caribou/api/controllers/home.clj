@@ -37,7 +37,7 @@
         [slug format] (split-format model-slug)
         opts (-> (:params request)
                  (queries-to-map)                 
-                 (select-keys [:limit :offset :include :where :order]))
+                 (select-keys [:limit :offset :include :where :order :fields]))
         sani-opts (if-let [s-fn (::sanitize-fn request)]
                     (s-fn opts)
                     opts)
@@ -55,7 +55,7 @@
                  (queries-to-map)
                  (#(if-let [id (-> % :id)]
                      (assoc-in % [:where :id] id) %))
-                 (select-keys [:limit :offset :include :where :order]))
+                 (select-keys [:limit :offset :include :where :order :fields]))
         sani-opts (if-let [s-fn (::sanitize-fn request)]
                     (s-fn opts)
                     opts)
@@ -101,7 +101,8 @@
         opts (-> (:params request)
                  (queries-to-map)
                  ((fn [m] (assoc-in m [:where :id] provided-id)))
-                 (select-keys [:limit :offset :include :where :order :id]))
+                 (select-keys [:limit :offset :include :where
+                               :order :fields :id]))
         ;; allow the sanitize-fn to discard results
         sani-opts (if-let [s-fn (::sanitize-fn request)]
                     (s-fn opts)
