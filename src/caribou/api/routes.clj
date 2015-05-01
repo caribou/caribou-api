@@ -1,9 +1,17 @@
-(ns caribou.api.routes)
+(ns caribou.api.routes
+  (:require [caribou.app.pages :as pages]))
 
 (def api-routes
-  '({:path "" :slug "api.home" :position nil :template "_api/home.html" :method "" :action "home" :name "Home" :controller "home" :children
-     ({:path ":model" :slug "api.index" :position nil :template "_api/index.html" :method "GET" :action "index" :name "Index" :controller "home" :children
-       ({:path ":id" :slug "api.detail" :position nil :template "_api/detail.html" :method "GET" :action "detail" :name "Detail" :controller "home" :children ()}
-        {:path ":id" :slug "api.update" :position nil :template "_api/update.html" :method "PUT" :action "update" :name "Update" :controller "home" :children ()}
-        {:path ":id" :slug "api.delete" :position nil :template "_api/delete.html" :method "DELETE" :action "delete" :name "Delete" :controller "home" :children ()})}
-      {:path ":model" :slug "api.create" :position nil :template "_api/create.html" :method "POST" :action "create" :name "Create" :controller "home" :children ()})}))
+  [["/" :home {:ALL {:controller 'home :action 'home}}
+    [[":model" :api.index {:GET {:controller 'home :action 'index}
+                           :POST {:controller 'home :action 'create}
+                           :OPTIONS {:controller 'home :action 'options}}
+      [[":id" :api.item {:GET {:controller 'home :action 'detail}
+                         :PUT {:controller 'home :action 'update}
+                         :DELETE {:controller 'home :action 'delete}
+                         :OPTIONS {:controller 'home :action 'options}}]]]]]])
+
+(defn build-api-routes
+  []
+  (pages/bind-actions api-routes 'caribou.api.controllers))
+
